@@ -1,0 +1,9 @@
+# folder
+.vscode
+__pycache__
+outputs
+data
+
+# file
+*.ply
+*.h5

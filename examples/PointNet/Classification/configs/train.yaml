@@ -1,0 +1,53 @@
+# Other
+## epochs
+epochs: 250
+## start epoch
+start_epoch: 0
+## test and save term (If XX_epoch is -1, XX does not work.)
+save_epoch: 1
+## seed value
+seed: 71
+## output folder path
+output_folder: outputs
+
+# Dataset
+## each dataset setting
+dataset:
+  name: modelnet40
+  root: ???
+## loader
+batch_size: 32
+nworkers: 4
+
+# Network settings
+## select pointnet type
+model: pointnet_cls
+## use cuda
+device: cuda
+## use input transform module
+use_input_transform: True
+# use feature transform module
+use_feature_transform: True
+## number of points in a block
+num_points: 1024
+## number of prediction classes
+num_classes: 40
+## reproducibility
+reproducibility: False
+## resume training
+resume: null
+
+# Optimizer settings
+## optimizer name (Adam or SGD)
+optim: adam
+## learning rate
+lr: 0.001
+## SGD
+### momentum
+# momentum: 0.9
+
+# Scheduler
+# for iterations
+epoch_size: 20
+decay_rate: 0.7
+
