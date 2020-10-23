@@ -18,9 +18,9 @@ Point cloud processing with PyTorch
 - [PointNet](examples/PointNet/README.md)
   - ModelNet40
 
-## Implementation
+## Models of this repository
 ### PointNet
-- [Our Impl.](examples/PointNet/README.md)
+- [Model of this repository](examples/PointNet/README.md)
 - Paper:
   - [Charles R Qi, Hao Su, Kaichun Mo, and Leonidas J. Guibas. PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation. In CVPR, 2017.](https://arxiv.org/abs/1612.00593)
 - Original implementation:

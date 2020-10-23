@@ -2,7 +2,7 @@
 ## How to use
 ### Training
 - ```bash
-  python train.py dataset.root=$PREPRODATA_DIR dataset.name=modelnet40
+  python train.py dataset.root=$PREPRODATA_DIR dataset.name=ModelNet40
   ```
   - args
     - `dataset.root`: select dataset directory path
@@ -12,7 +12,7 @@
 |Impl.|mAcc|oAcc|
 |-----|----|----|
 |[Original](https://github.com/charlesq34/pointnet)|86.2|89.2|
-|Our|84.4|87.9|
+|Model of this repo.|84.4|87.9|
 
 
 ## References

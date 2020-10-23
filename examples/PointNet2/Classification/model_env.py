@@ -10,7 +10,7 @@ from torch_point_cloud.datasets.PointNet.ModelNet import (
     ModelNet40, rotation_and_jitter)
 
 # model
-from torch_point_cloud.models.PointNet import PointNetClassification
+# from torch_point_cloud.models.PointNet2 import Po
 
 # loss
 from torch_point_cloud.losses.feature_transform_regularizer import (

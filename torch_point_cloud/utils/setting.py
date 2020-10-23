@@ -193,6 +193,9 @@ class PytorchTools:
 
     @staticmethod
     def load_data(path):
+        """
+        Load a check point.
+        """
         print("-> loading data '{}'".format(path))
         # https://discuss.pytorch.org/t/out-of-memory-error-when-resume-training-even-though-my-gpu-is-empty/30757
         checkpoint = torch.load(path, map_location='cpu')

@@ -4,7 +4,7 @@
 
 ## Links
 - Classification
-  - [ModelNet40](./ModelNet/README.md)
+  - [ModelNet40](./Classification/README.md)
 - Part Segmentation
   - [ShapeNetPart](./ShapeNetPart/README.md)
 
@@ -14,11 +14,11 @@
 |Impl.|mAcc|oAcc|
 |-----|----|----|
 |[Original](https://github.com/charlesq34/pointnet)|86.2|89.2|
-|Our|84.4|87.9|
+|Model of this repo.|84.4|87.9|
 
 ### ShapeNetPart
 
 |Impl.|mIoU|
 |-----|----|
 |[Original](https://github.com/charlesq34/pointnet)|83.7|
-|Our|75.6?|
+|Model of this repo.|yet|

@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 
-from torch_point_cloud.modules.layer import Layers
+from torch_point_cloud.modules.Layer import Layers
 from torch_point_cloud.modules.TransformNet import (
     InputTransformNet, FeatureTransformNet)
 
