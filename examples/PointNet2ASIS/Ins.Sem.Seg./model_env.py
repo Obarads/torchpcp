@@ -6,19 +6,15 @@ from torch import nn
 from torch.optim import lr_scheduler
 
 # dataset
-from torch_point_cloud.datasets.PointNet.ModelNet import (
-    ModelNet40, rotation_and_jitter)
+# from torch_point_cloud.datasets.ASIS
 
 # model
-from torch_point_cloud.models.PointNet2 import PointNet2SSGClassification
-
-# loss
-from torch_point_cloud.losses.feature_transform_regularizer import (
-    feature_transform_regularizer)
+from torch_point_cloud.models.PointNet2ASIS import PointNet2ASIS
 
 def get_dataset(cfg):
-    if dataset.name == "ModelNet40":
-        dataset = ModelNet40(cfg.dataset.root, cfg.num_points)
+    if cfg.dataset.name == "S3DIS":
+        # dataset = ModelNet40(cfg.dataset.root, cfg.num_points)
+        pass
     else:
         raise NotImplementedError('Unknown dataset: ' + cfg.dataset.name)
     return dataset
@@ -27,7 +23,7 @@ def get_model(cfg):
     dataset_name = cfg.dataset.name
     num_classes = cfg.dataset[dataset_name].num_classes
     if cfg.model == "pointnet2_ssg_cls":
-        model = PointNet2SSGClassification(num_classes, cfg.point_feature_size)
+        model = PointNet2ASIS(num_classes, cfg.ins_channel)
     else:
         raise NotImplementedError('Unknown model: ' + cfg.model)
     model.to(cfg.device)

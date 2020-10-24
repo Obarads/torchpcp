@@ -10,21 +10,18 @@ class ASIS(nn.Module):
         super(ASIS, self).__init__()
 
         # sem branch
-        self.sem_fc = MLP1D(sem_in_channels, 128) # for F_SEM(?)
         self.sem_pred_fc = nn.Sequential(
             nn.Dropout(inplace=True),
-            nn.Conv1d(128, sem_out_channels, 1)
+            nn.Conv1d(sem_in_channels, sem_out_channels, 1)
         ) # input: F_ISEM, output: P_SEM
 
         # interactive module: sem to ins
-        f_sins_num_channels = 128 # when element_wise_addition
-        self.adaptation = MLP1D(128, f_sins_num_channels)
+        self.adaptation = MLP1D(sem_in_channels, ins_in_channels)
 
         # ins branch
-        self.ins_fc = MLP1D(ins_in_channels, f_sins_num_channels) # for F_INS(?)
         self.ins_emb_fc = nn.Sequential(
             nn.Dropout(inplace=True),
-            nn.Conv1d(f_sins_num_channels, ins_out_channels, 1)
+            nn.Conv1d(ins_in_channels, ins_out_channels, 1)
         ) # input: F_SINS, output: E_INS
 
         # interactive module: ins to sem
@@ -33,11 +30,9 @@ class ASIS(nn.Module):
         self.k = k
 
     def forward(self, f_sem, f_ins):
-        f_sem = self.sem_fc(f_sem)
         adapted_f_sem = self.adaptation(f_sem)
 
         # for E_INS
-        f_ins = self.ins_fc(f_ins)
         f_sins = f_ins + adapted_f_sem
         e_ins = self.ins_emb_fc(f_sins)
 

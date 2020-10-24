@@ -5,8 +5,11 @@ dataset:
   root: ???
   ModelNet40:
     num_classes: 40
-## loader
+## number of points in a block
+num_points: 1024
+    ## batch size
 batch_size: 32
+## loader cpu
 nworkers: 4
 
 # Network settings
@@ -16,8 +19,6 @@ model: pointnet_cls
 use_input_transform: True
 # use feature transform module
 use_feature_transform: True
-## number of points in a block
-num_points: 1024
 
 # Optimizer settings
 ## optimizer name (Adam or SGD)

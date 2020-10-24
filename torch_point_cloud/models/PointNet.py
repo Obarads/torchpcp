@@ -146,7 +146,7 @@ class PointNetExtractor(nn.Module):
         return x
 
 class PointNetClassification(nn.Module):
-    def __init__(self, num_classes:int, num_points:int, use_input_transform:bool,
+    def __init__(self, num_classes:int, use_input_transform:bool,
                  use_feature_transform:bool):
         """
         PointNet for classification.
@@ -154,8 +154,6 @@ class PointNetClassification(nn.Module):
         ----------
         num_classes: int
             number of classes for predictions
-        num_points: int
-            number of points for inputs
         use_input_transform: bool
             use transform module for input point clouds
         use_feature_transform: bool
@@ -180,7 +178,6 @@ class PointNetClassification(nn.Module):
         ) 
 
         self.num_classes = num_classes
-        self.num_points = num_points
         self.use_input_transform = use_input_transform
         self.use_feature_transform = use_feature_transform
     

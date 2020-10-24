@@ -1,0 +1,14 @@
+# Network setting
+## path to a trained model
+resume: ???
+
+# Other
+## output folder path
+output_folder: outputs
+## seed value
+seed: 71
+## reproducibility
+reproducibility: False
+## use cuda
+device: cuda
+

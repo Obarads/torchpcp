@@ -1,22 +1,25 @@
 # Dataset
 ## each dataset setting
 dataset:
-  name: ModelNet40
+  name: S3DIS
   root: ???
-  ModelNet40:
-    num_classes: 40
+  S3DIS:
+    num_classes: 13
+    areas:
+      train: [1,2,3,4,6]
+      test: [5]
 ## number of points in a block
-num_points: 1024
-    ## batch size
-batch_size: 32
+num_points: 4096
+## batch size
+batch_size: 24
 ## loader cpu
 nworkers: 4
 
 # Network settings
 ## select pointnet type
-model: pointnet2_ssg_cls
+model: pointnet2asis
 ## features size other than xyz
-point_feature_size: 0
+ins_channel: 5
 
 # Optimizer settings
 ## optimizer name (Adam or SGD)
@@ -30,11 +33,11 @@ lr: 0.001
 # Scheduler
 # for iterations
 epoch_size: 20
-decay_rate: 0.7
+decay_rate: 0.5
 
 # Other
 ## epochs
-epochs: 250
+epochs: 100
 ## start epoch
 start_epoch: 0
 ## test and save term (If XX_epoch is -1, XX does not work.)
