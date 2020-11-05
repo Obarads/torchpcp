@@ -22,8 +22,9 @@ class PointNet2SSGClassification(nn.Module):
         feature size other than xyz
     """
     def __init__(self, num_classes, point_feature_size=0):
+        in_channel = 3+point_feature_size
         self.sa1 = PointNetSetAbstraction(npoint=512, radius=0.2, nsample=32, 
-                                          in_channel=point_feature_size, 
+                                          in_channel=in_channel, 
                                           mlp=[64, 64, 128], group_all=False)
         self.sa2 = PointNetSetAbstraction(npoint=128, radius=0.4, nsample=64,
                                           in_channel=128 + 3,
@@ -61,6 +62,64 @@ class PointNet2SSGClassification(nn.Module):
 
         return x
 
+class PointNet2SSGSemanticSegmentation(nn.Module):
+    """
+    PointNet++ with SSG for Semantic segmentation
+    Parameters
+    ----------
+    num_classes:int
+        number of classes
+    point_feature_size:int
+        feature size other than xyz
+    """
+    def __init__(self, num_classes, point_feature_size=0):
+        super().__init__()
+        in_channel = 3+point_feature_size
+        self.sa1 = PointNetSetAbstraction(npoint=1024, radius=0.1, nsample=32, 
+                                          in_channel=in_channel, 
+                                          mlp=[32, 32, 64], group_all=False)
+        self.sa2 = PointNetSetAbstraction(npoint=256, radius=0.2, nsample=32,
+                                          in_channel=64 + 3,
+                                          mlp=[64, 64, 128], group_all=False)
+        self.sa3 = PointNetSetAbstraction(npoint=64, radius=0.4, nsample=32,
+                                          in_channel=128+3,
+                                          mlp=[128, 128, 256], group_all=False)
+        self.sa4 = PointNetSetAbstraction(npoint=16, radius=0.8, nsample=32,
+                                          in_channel=256 + 3,
+                                          mlp=[256, 256, 512], group_all=False)
+        self.fp4 = PointNetFeaturePropagation(768, [256, 256])
+        self.fp3 = PointNetFeaturePropagation(384, [256, 256])
+        self.fp2 = PointNetFeaturePropagation(320, [256, 128])
+        self.fp1 = PointNetFeaturePropagation(128+point_feature_size, [128, 128, 128])
 
+        self.output_layers = nn.Sequential(
+            MLP1D(128, 128),
+            nn.Dropout(0.5),
+            nn.Conv1d(128, num_classes, 1)
+        )
+
+        self.point_feature_size = point_feature_size
+    
+    def forward(self, inputs):
+        if self.point_feature_size > 0:
+            l0_xyz = inputs[:, :3, :]
+            l0_points = inputs[:, 3:, :]
+        else:
+            l0_xyz = inputs
+            l0_points = None
+
+        l1_xyz, l1_points = self.sa1(l0_xyz, l0_points)
+        l2_xyz, l2_points = self.sa2(l1_xyz, l1_points)
+        l3_xyz, l3_points = self.sa3(l2_xyz, l2_points)
+        l4_xyz, l4_points = self.sa4(l3_xyz, l3_points)
+
+        l3_points = self.fp4(l3_xyz, l4_xyz, l3_points, l4_points)
+        l2_points = self.fp3(l2_xyz, l3_xyz, l2_points, l3_points)
+        l1_points = self.fp2(l1_xyz, l2_xyz, l1_points, l2_points)
+        l0_points = self.fp1(l0_xyz, l1_xyz, l0_points, l1_points)
+
+        x = self.output_layers(l0_points)
+
+        return x
 
 

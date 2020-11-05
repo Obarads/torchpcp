@@ -8,8 +8,8 @@ Point cloud processing with PyTorch
 - CUDA: 10.2
 - packages
   - ```
-    pip install torch==1.5.0 torchvision=0.6.0
-    pip install torch-cluster==1.5.6
+    pip install torch==1.6.0 torchvision=0.7.0
+    pip install torch-cluster==latest+cu102 -f https://pytorch-geometric.com/whl/torch-1.6.0.html
     pip install plyfile==0.7.2
     pip install tensorboardX
     ```

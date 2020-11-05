@@ -10,9 +10,6 @@ import pandas as pd
 from sklearn.decomposition import PCA
 import torch
 
-###
-### Original:  https://github.com/loicland/superpoint_graph/
-###
 def write_ply(filename, xyz, rgb=None):
     """
     write into a ply file
@@ -56,9 +53,14 @@ def embedding2ply(filename, xyz, embeddings):
     ply = PlyData([PlyElement.describe(vertex_all, 'vertex')], text=True)
     
     ply.write(filename)
-###
-### Original: END
-###
+
+def check_label_colors(file_name, num_points, seed=0, margin=0.5):
+    xyz = np.zeros((num_points, 3))
+    margin_coord = np.arange(num_points) * margin
+    xyz[:,0] = margin_coord
+    labels = np.arange(num_points)
+    labels2ply(file_name, xyz, labels, seed=seed)
+
 try:
     from tsnecuda import TSNE
 except:
@@ -82,11 +84,6 @@ def write_tsne(label_dict, embedding, extension="png", tsne_model=None):
     plt.close('all')
 
 def labels2ply(filename, xyz, labels, seed=0, color_map:list=None):
-    """
-    Parameters
-    ----------
-
-    """
     np.random.seed(seed)
     max_labels = np.max(labels)
     if color_map is None:

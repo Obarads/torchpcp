@@ -1,7 +1,7 @@
 import os, sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "configs/train.yaml")
-sys.path.append(os.path.join(BASE_DIR, "../../../")) # for package path
+CONFIG_PATH = os.path.abspath(os.path.join(BASE_DIR, "configs/train.yaml"))
+sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "../../../"))) # for package path
 
 import omegaconf
 import numpy as np
