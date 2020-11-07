@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from torch_point_cloud.models.modules.sampling import square_distance, index_points
+from torch_point_cloud.modules.Sampling import square_distance, index_points
 
 class PointNetFeaturePropagation(nn.Module):
     def __init__(self, in_channel, mlp):

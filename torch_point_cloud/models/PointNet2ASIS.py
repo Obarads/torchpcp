@@ -10,7 +10,7 @@ from torch_point_cloud.modules.PointNetFeaturePropagation import PointNetFeature
 from torch_point_cloud.modules.ASIS import ASIS
 
 class PointNet2ASIS(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, ins_channel):
         super(PointNet2ASIS, self).__init__()
 
         self.sa1 = PointNetSetAbstraction(1024, 0.1, 32, 6+3, [32, 32, 64], None)
@@ -31,7 +31,7 @@ class PointNet2ASIS(nn.Module):
         self.sem_fc = MLP1D(128, 128) # for F_SEM
         self.ins_fc = MLP1D(128, 128) # for F_INS
 
-        self.asis = ASIS(128, num_classes, 128, 5, 30)
+        self.asis = ASIS(128, num_classes, 128, ins_channel, 30)
 
     def forward(self, x):
         l0_points = x[:, 3:, :]

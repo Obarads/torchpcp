@@ -3,6 +3,7 @@
 __pycache__
 outputs
 data
+function_test
 
 # file
 *.ply

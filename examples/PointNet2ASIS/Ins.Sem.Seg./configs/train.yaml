@@ -1,52 +1,74 @@
+# General
+general:
+  ## batch size
+  batch_size: 24
+  ## epochs
+  epochs: 100
+  ## start epoch
+  start_epoch: 0
+  ## test and save term (If XX_epoch is -1, XX does not work.)
+  save_epoch: 1
+  ## output folder path
+  output_folder: outputs
+  ## seed value
+  seed: 71
+  ## reproducibility
+  reproducibility: False
+  ## use cuda
+  device: cuda
+
 # Dataset
 ## each dataset setting
 dataset:
-  name: S3DIS
+  ## dataset name: [s3dis, s3dis_block, s3dis_scene]
+  name: s3dis_block
+  ## dataset dir path
   root: ???
-  S3DIS:
+  s3dis:
     num_classes: 13
+    # select training and test data
     areas:
       train: [1,2,3,4,6]
       test: [5]
-## number of points in a block
-num_points: 4096
-## batch size
-batch_size: 24
-## loader cpu
-nworkers: 4
+  ## number of points in a block
+  num_points: 4096
+  ## memory saving (for s3dis_block)
+  memory_saving: False
+
+# Dataset Loader
+loader:
+  ## loader cpu
+  nworkers: 4
 
 # Network settings
-## select pointnet type
-model: pointnet2asis
-## features size other than xyz
-ins_channel: 5
+model:
+  ## model name: [pointnet2asis]
+  name: pointnet2asis
+  ## features size other than xyz
+  ins_channel: 5
 
 # Optimizer settings
-## optimizer name (Adam or SGD)
-optim: adam
-## learning rate
-lr: 0.001
-## SGD
-### momentum
-# momentum: 0.9
+optimizer:
+  ## optimizer name [adam]
+  name: adam
+  ## init learning rate
+  lr: 0.001
+  ## SGD
+  ### momentum
+  # momentum: 0.9
 
 # Scheduler
-# for iterations
-epoch_size: 20
-decay_rate: 0.5
+scheduler:
+  # for iterations
+  epoch_size: 20
+  decay_rate: 0.5
 
-# Other
-## epochs
-epochs: 100
-## start epoch
-start_epoch: 0
-## test and save term (If XX_epoch is -1, XX does not work.)
-save_epoch: 1
-## output folder path
-output_folder: outputs
-## seed value
-seed: 71
-## reproducibility
-reproducibility: False
-## use cuda
-device: cuda
+# Loss function setting
+criterion:
+  discriminative:
+    delta_d: 1.5
+    delta_v: 0.5
+    var: 1.0
+    dist: 1.0
+    reg: 0.001
+

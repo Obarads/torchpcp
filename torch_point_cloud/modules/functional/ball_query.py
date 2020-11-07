@@ -1,6 +1,6 @@
 from torch.autograd import Function
 
-from torch_point_cloud.models.modules.functional.backend import _backend
+from torch_point_cloud.modules.functional.backend import _backend
 
 __all__ = ['ball_query']
 

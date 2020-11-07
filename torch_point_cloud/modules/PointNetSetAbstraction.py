@@ -2,8 +2,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from torch_point_cloud.models.modules.layer import MLP2D
-from torch_point_cloud.models.modules.sampling import (
+from torch_point_cloud.modules.Layer import MLP2D
+from torch_point_cloud.modules.Sampling import (
     index_points, farthest_point_sample, query_ball_point, sample_and_group, 
     sample_and_group_all)
 
