@@ -48,8 +48,10 @@ def main():
     writer = SummaryWriter(cfg.general.output_folder)
 
     # start training
-    for epoch in range(cfg.general.start_epoch, cfg.general.epochs):
-        print('Epoch {}/{}:'.format(epoch, cfg.general.epochs))
+    loader = tqdm(range(cfg.general.start_epoch, cfg.general.epochs), 
+                  desc="Training", ncols=70)
+    for epoch in loader:
+        # print('Epoch {}/{}:'.format(epoch, cfg.general.epochs))
 
         # training
         train_log = train(
@@ -100,7 +102,7 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
         pin_memory=True,
         shuffle=True,
     )
-    loader = tqdm(loader, ncols=100, desc=publisher)
+    # loader = tqdm(loader, ncols=100, desc=publisher)
 
     dataset_name = cfg.dataset.name.split("_")[0]
     num_classes = cfg.dataset[dataset_name].num_classes
@@ -130,14 +132,14 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     # get epoch loss and acc
     train_loss = batch_loss.compute()
     train_acc = acc_meter.compute()
-    print(
-        '-> Train loss: {}  mAcc: {} iou: {} oAcc: {}'.format(
-            train_loss, 
-            train_acc["class"],
-            train_acc["iou"],
-            train_acc["overall"]
-        )
-    )
+    # print(
+    #     '-> Train loss: {}  mAcc: {} iou: {} oAcc: {}'.format(
+    #         train_loss, 
+    #         train_acc["class"],
+    #         train_acc["iou"],
+    #         train_acc["overall"]
+    #     )
+    # )
 
     # save loss and acc to tensorboard
     lr = scheduler.get_last_lr()[0]

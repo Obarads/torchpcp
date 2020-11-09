@@ -47,6 +47,21 @@ def batch_fps(xyz, npoint):
         farthest = torch.max(distance, -1)[1]
     return centroids
 
+from torch_cluster import fps
+def furthest_point_sample(xyz:torch.tensor, num_samples:int):
+    # How to use fps: examples/PointNet2ASIS/tests/fps_test.py
+    xyz = xyz.transpose(1,2).contiguous()
+    device = xyz.device
+    B, N, C = xyz.shape
+    xyz = xyz.view(B*N, C)
+    batch = torch.arange(0,B,dtype=torch.long, device=device)
+    batch = batch.view(-1,1).repeat(1,N).view(B*N)
+    fps_idx = fps(xyz, batch, num_samples/N, True)
+    fps_idx = fps_idx.view(B, num_samples)
+    idx_base = torch.arange(0, B, device=device).view(-1, 1)*N
+    fps_idx = fps_idx - idx_base
+    return fps_idx
+
 # https://github.com/yanx27/Pointnet_Pointnet2_pytorch/blob/master/models/pointnet_util.py#L87
 def query_ball(radius, nsample, xyz, new_xyz):
     """

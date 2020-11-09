@@ -90,19 +90,6 @@ def furthest_point_sample(coords, num_samples):
     # return gather(coords, indices)
     return indices
 
-# def batch_fps(xyz:torch.tensor, num_samples:int):
-#     # How to use fps: examples/PointNet2ASIS/tests/fps_test.py
-#     device = xyz.device
-#     B, N, C = xyz.shape
-#     xyz = xyz.view(B*N, C)
-#     batch = torch.arange(0,B,dtype=torch.long, device=device)
-#     batch = batch.view(-1,1).repeat(1,N).view(B*N)
-#     fps_idx = fps(xyz, batch, num_samples/N, True)
-#     fps_idx = fps_idx.view(B, num_samples)
-#     idx_base = torch.arange(0, B, device=device).view(-1, 1)*N
-#     fps_idx = fps_idx - idx_base
-#     return fps_idx
-
 def index2points(points, idx):
     """Construct edge feature for each point
     Args:
