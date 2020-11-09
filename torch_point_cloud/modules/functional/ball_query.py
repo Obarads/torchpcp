@@ -1,18 +1,29 @@
 from torch.autograd import Function
 
-from torch_point_cloud.modules.functional.backend import _backend
+from .torch_c.backend import _backend
 
 __all__ = ['ball_query']
 
-
+# https://github.com/mit-han-lab/pvcnn/blob/master/modules/functional/ball_query.py
 def ball_query(centers_coords, points_coords, radius, num_neighbors):
         """
-        :param centers_coords: coordinates of centers, FloatTensor[B, 3, M]
-        :param points_coords: coordinates of points, FloatTensor[B, 3, N]
-        :param radius: float, radius of ball query
-        :param num_neighbors: int, maximum number of neighbors
-        :return:
-            neighbor_indices: indices of neighbors, IntTensor[B, M, U]
+        Ball query
+
+        Parameters
+        ----------
+        centers_coords : torch.tensor [B, 3, M]
+            coordinates of centers
+        points_coords : torch.tensor [B, 3, N]
+            coordinates of points
+        radius : float
+            radius of ball query
+        num_neighbors : int
+            maximum number of neighbors
+        
+        Return
+        ------
+        neighbor_indices : torch.tensor [B, M, U]
+            indices of neighbors
         """
         centers_coords = centers_coords.contiguous()
         points_coords = points_coords.contiguous()

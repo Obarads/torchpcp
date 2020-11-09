@@ -2,7 +2,7 @@ import torch
 from torch_cluster import fps
 
 # from torch_point_cloud.models.modules.ball_query import BallQuery
-from torch_point_cloud.modules.functional import ball_query
+from torch_point_cloud.modules.functional.ball_query import ball_query
 
 # https://github.com/yanx27/Pointnet_Pointnet2_pytorch/blob/master/models/pointnet_util.py#L19
 def square_distance(src, dst):

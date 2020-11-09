@@ -1,10 +1,10 @@
 from torch.autograd import Function
 
-from torch_point_cloud.modules.functional.backend import _backend
+from .torch_c.backend import _backend
 
 __all__ = ['grouping']
 
-
+# https://github.com/mit-han-lab/pvcnn/blob/master/modules/functional/grouping.py
 class Grouping(Function):
     @staticmethod
     def forward(ctx, features, indices):

@@ -1,10 +1,10 @@
 from torch.autograd import Function
 
-from torch_point_cloud.models.modules.functional.backend import _backend
+from .torch_c.backend import _backend
 
 __all__ = ['nearest_neighbor_interpolate']
 
-
+# https://github.com/mit-han-lab/pvcnn/blob/master/modules/functional/interpolatation.py
 class NeighborInterpolation(Function):
     @staticmethod
     def forward(ctx, points_coords, centers_coords, centers_features):

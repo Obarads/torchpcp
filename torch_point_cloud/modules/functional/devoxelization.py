@@ -1,10 +1,10 @@
 from torch.autograd import Function
 
-from torch_point_cloud.models.modules.functional.backend import _backend
+from .torch_c.backend import _backend
 
 __all__ = ['trilinear_devoxelize']
 
-
+# https://github.com/mit-han-lab/pvcnn/blob/master/modules/functional/devoxelization.py
 class TrilinearDevoxelization(Function):
     @staticmethod
     def forward(ctx, features, coords, resolution, is_training=True):

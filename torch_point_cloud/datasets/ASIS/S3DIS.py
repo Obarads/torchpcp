@@ -5,7 +5,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 import glob
 import h5py
 import yaml
-import tqdm
+from tqdm import tqdm
 import numpy as np
 
 from torch.utils.data import Dataset
@@ -102,7 +102,8 @@ class S3DISPath2BlockDataset(Dataset):
         ins_labels = []
         sem_labels = []
 
-        for h5_file_path in path_list:
+        loader = tqdm(path_list, desc="loading dataset", ncols=80)
+        for h5_file_path in loader:
             cur_data, cur_group, _, cur_sem = \
                 loadDataFile_with_groupseglabel_stanfordindoor(h5_file_path)
             # add point clouds to list

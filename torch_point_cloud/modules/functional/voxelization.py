@@ -1,10 +1,10 @@
 from torch.autograd import Function
 
-from torch_point_cloud.models.modules.functional.backend import _backend
+from .torch_c.backend import _backend
 
 __all__ = ['avg_voxelize']
 
-
+# https://github.com/mit-han-lab/pvcnn/blob/master/modules/functional/voxelization.py
 class AvgVoxelization(Function):
     @staticmethod
     def forward(ctx, features, coords, resolution):

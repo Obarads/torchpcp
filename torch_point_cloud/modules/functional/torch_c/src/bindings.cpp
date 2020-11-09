@@ -7,7 +7,7 @@
 #include "sampling/sampling.hpp"
 #include "voxelization/vox.hpp"
 
-PYBIND11_MODULE(_pvcnn_backend, m) {
+PYBIND11_MODULE(_torch_c, m) {
   m.def("gather_features_forward", &gather_features_forward,
         "Gather Centers' Features forward (CUDA)");
   m.def("gather_features_backward", &gather_features_backward,

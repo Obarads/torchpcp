@@ -29,7 +29,7 @@ class TimeWatcher:
         self.__previous_time = now_time
         return lap_time, split_time
 
-def timecheck(start, publisher="time"):
+def timecheck(start=None, publisher="time"):
     if start is not None:
         print("{}: {}s".format(publisher, time.time()-start))
     return time.time()
