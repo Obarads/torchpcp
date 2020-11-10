@@ -6,7 +6,9 @@ from torch.autograd import Variable
 
 from torch_point_cloud.modules.Layer import Layers
 from torch_point_cloud.modules.TransformNet import (
-    InputTransformNet, FeatureTransformNet)
+    InputTransformNet, 
+    FeatureTransformNet
+)
 
 class MLP1D(Layers):
     def __init__(self, in_channels, out_channels, 
