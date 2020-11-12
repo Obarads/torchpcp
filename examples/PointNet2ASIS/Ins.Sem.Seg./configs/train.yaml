@@ -8,8 +8,6 @@ general:
   start_epoch: 0
   ## test and save term (If XX_epoch is -1, XX does not work.)
   save_epoch: 1
-  ## output folder path
-  output_folder: outputs
   ## seed value
   seed: 71
   ## reproducibility
@@ -20,8 +18,10 @@ general:
 # Dataset
 ## each dataset setting
 dataset:
-  ## dataset name: [s3dis, s3dis_block, s3dis_scene]
-  name: s3dis_block
+  ## dataset name: [s3dis]
+  name: s3dis
+  # training:block, test:scene
+  mode: block
   ## dataset dir path
   root: ???
   s3dis:

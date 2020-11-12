@@ -1,13 +1,20 @@
 # General
 general:
-  ## output folder path
-  output_folder: outputs
   ## seed value
   seed: 71
   ## reproducibility
   reproducibility: False
   ## use cuda
   device: cuda
+  ## get mean_ins_size.txt
+  sizetxt: mean_ins_size.txt
+
+# dataset settings
+dataset:
+  name: s3dis
+  mode: scene
+  root: ???
+  
 
 # Network settings
 model:

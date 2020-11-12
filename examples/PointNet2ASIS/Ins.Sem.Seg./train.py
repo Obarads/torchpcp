@@ -1,8 +1,10 @@
 import os, sys
+CW_DIR = os.getcwd()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.abspath(os.path.join(BASE_DIR, "configs/train.yaml"))
 sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "../../../"))) # for package path
 
+import hydra
 import omegaconf
 import numpy as np
 from tqdm import tqdm
@@ -12,8 +14,7 @@ import torch
 from torch.utils.data import DataLoader
 
 # tools
-from torch_point_cloud.utils.setting import (PytorchTools, get_configs,
-                                             make_folders)
+from torch_point_cloud.utils.setting import (PytorchTools, fix_path_in_configs)
 from torch_point_cloud.utils.metrics import MultiAssessmentMeter, LossMeter
 from torch_point_cloud.utils.converter import dict2tensorboard
 
@@ -21,12 +22,10 @@ from torch_point_cloud.utils.converter import dict2tensorboard
 from model_env import processing, save_params
 from model_env import get_model, get_dataset, get_losses, get_optimizer, get_scheduler
 
-def main():
-    # get configs
-    cfg, _, _ = get_configs(CONFIG_PATH)
-
-    # make a output folder
-    make_folders(cfg.general.output_folder)
+@hydra.main(config_name=CONFIG_PATH)
+def main(cfg:omegaconf.DictConfig):
+    # fix paths
+    cfg = fix_path_in_configs(CW_DIR, cfg, [["dataset","root"]])
 
     # set a seed 
     PytorchTools.set_seed(
@@ -36,7 +35,7 @@ def main():
     )
 
     # set a device
-    cfg.device = PytorchTools.select_device(cfg.general.device)
+    cfg.general.device = PytorchTools.select_device(cfg.general.device)
 
     model = get_model(cfg)
     dataset = get_dataset(cfg)
@@ -45,7 +44,7 @@ def main():
     scheduler = get_scheduler(cfg, optimizer)
 
     # get a logger
-    writer = SummaryWriter(cfg.general.output_folder)
+    writer = SummaryWriter("./")
 
     # start training
     loader = tqdm(range(cfg.general.start_epoch, cfg.general.epochs), 
@@ -68,24 +67,12 @@ def main():
         # save params and model
         if (epoch+1) % cfg.general.save_epoch == 0 and \
             cfg.general.save_epoch != -1:
-            save_params(
-                os.path.join(cfg.general.output_folder, "model.path.tar"), 
-                epoch+1, 
-                cfg, 
-                model, 
-                optimizer, 
-                scheduler
-            )
+            save_params("model.path.tar", epoch+1, cfg, model, optimizer, 
+                        scheduler)
 
     print('Epoch {}/{}:'.format(cfg.general.epochs, cfg.general.epochs))
-    save_params(
-        os.path.join(cfg.general.output_folder, "f_model.path.tar"), 
-        cfg.general.epochs, 
-        cfg, 
-        model, 
-        optimizer, 
-        scheduler
-    )
+    save_params("f_model.path.tar", cfg.general.epochs, cfg, model, optimizer, 
+                scheduler)
 
     writer.close()
 
@@ -104,10 +91,8 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     )
     # loader = tqdm(loader, ncols=100, desc=publisher)
 
-    dataset_name = cfg.dataset.name.split("_")[0]
-    num_classes = cfg.dataset[dataset_name].num_classes
     acc_meter = MultiAssessmentMeter(
-        num_classes=num_classes, 
+        num_classes=dataset.num_classes, 
         metrics=["class","overall","iou"]
     )
     batch_loss = LossMeter()
@@ -116,7 +101,7 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     for data in loader:
         optimizer.zero_grad()
 
-        loss = processing(cfg, model, criterion, data, meters)
+        loss = processing(model, criterion, data, meters, cfg.general.device)
 
         loss.backward()
         optimizer.step()

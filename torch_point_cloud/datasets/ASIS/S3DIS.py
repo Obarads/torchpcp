@@ -68,11 +68,11 @@ def create_batch_instance_information(batch_ins_labels):
 
 class S3DISPath2SceneDataset(Dataset):
     def __init__(self, path_list, num_points, block_size=1.0, stride=0.5):
+        self.num_classes = 13
+        self.ROOM_PATH_LIST = path_list
         self.num_points = num_points
         self.block_size = block_size
         self.stride = stride
-
-        self.ROOM_PATH_LIST = path_list
 
     def __len__(self):
         return len(self.ROOM_PATH_LIST)
@@ -95,9 +95,6 @@ class S3DISPath2SceneDataset(Dataset):
 class S3DISPath2BlockDataset(Dataset):
     def __init__(self, path_list, num_points):
 
-        self.num_points = num_points
-        self.path_list = path_list
-
         point_clouds = []
         ins_labels = []
         sem_labels = []
@@ -107,14 +104,14 @@ class S3DISPath2BlockDataset(Dataset):
             cur_data, cur_group, _, cur_sem = \
                 loadDataFile_with_groupseglabel_stanfordindoor(h5_file_path)
             # add point clouds to list
-            point_clouds.append(cur_data[:, 0:self.num_points, :])
+            point_clouds.append(cur_data[:, 0:num_points, :])
             # convert ins labels in a scene to each block
             cur_group = batch_sparseLabel_to_denseLabel(
-                cur_group[:, 0:self.num_points])
+                cur_group[:, 0:num_points])
             # add ins labels to list
             ins_labels.append(cur_group)
             # add sem labels to list
-            sem_labels.append(cur_sem[:, 0:self.num_points])
+            sem_labels.append(cur_sem[:, 0:num_points])
 
         # save each data
         self.point_clouds = np.concatenate(point_clouds, axis=0)
@@ -134,6 +131,10 @@ class S3DISPath2BlockDataset(Dataset):
         self.weights = weights / np.sum(weights)
         # self.weights = 1/np.log(1.2+weights)
 
+        self.num_classes = 13
+        self.num_points = num_points
+        self.path_list = path_list
+
     def __len__(self):
         return len(self.point_clouds)
     
@@ -151,9 +152,6 @@ class S3DISPath2BlockDatasetMS(Dataset):
     MS=memory saving
     """
     def __init__(self, path_list, num_points):
-        self.num_points = num_points
-        self.path_list = path_list
-
         # define each data
         idx2datainfo = []
         max_ins_label_size = 0
@@ -170,6 +168,10 @@ class S3DISPath2BlockDatasetMS(Dataset):
 
         self.idx2datainfo = idx2datainfo
         self.max_ins_label_size = max_ins_label_size
+
+        self.num_classes = 13
+        self.num_points = num_points
+        self.path_list = path_list
 
     def __len__(self):
         return len(self.idx2datainfo)

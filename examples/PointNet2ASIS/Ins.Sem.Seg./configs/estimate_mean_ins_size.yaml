@@ -1,0 +1,14 @@
+# General
+general:
+  ## seed value
+  seed: 71
+
+# Dataset settings
+dataset:
+  ## dataset name: [s3dis]
+  name: s3dis
+  # path to block folder
+  root: ???
+  s3dis:
+    num_classes: 13
+    areas: [1,2,3,4,6]

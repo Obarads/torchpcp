@@ -68,6 +68,62 @@ def is_absolute(path:str)->bool:
     path_pl = pathlib.Path(path)
     return path_pl.is_absolute()
 
+def fix_path_in_configs(base_path, cfg, dictkey_list):
+    """
+    Join to base_path relative path
+
+    Parameters
+    ----------
+    base_path : str
+        a path to join to head of relative path
+    cfg : omega.DictConfig
+        configs
+    dictkey_list : list
+        key list to fix relative paths
+
+    Return
+    ------
+    modified_cfg
+        config with modified paths
+
+    Examples
+    --------
+    import omegaconf
+
+    dict_cfg = {
+        "o1" : 0,
+        "p1" : {
+            "p2" : "/path/to/a",
+            "p3" : "to/b"
+        },
+        "q1" : {
+            "q2" : "to/c",
+            "q3" : "to/d"
+        },
+        "r1" : {"r1" : "to/e"}
+    }
+    cfg = omegaconf.OmegaConf.create(dict_cfg)
+    dictkey_list = [["p1","p2"],["q1","q2"]]
+    base_path = "/other/path"
+    fixed_cfg = fix_path_in_configs(base_path, cfg, dictkey_list)
+    print(cfg)
+    print(fixed_cfg)
+    """
+
+    def input_value(i, key_list, bq, _cfg):
+        if len(key_list) > i:
+            d = {key_list[i] : input_value(i+1, key_list, bq, _cfg[key_list[i]])}
+        else:
+            d = os.path.join(bq, _cfg) # If _cfg is absolute path, d = _cfg.
+        return d
+
+    for keys in dictkey_list:
+        da = input_value(0, keys, base_path, cfg)
+        da = omegaconf.OmegaConf.create(da)
+        cfg = omegaconf.OmegaConf.merge(cfg, da)
+
+    return cfg
+
 def get_git_commit_hash():
     cmd = "git rev-parse --short HEAD"
     hash_code = subprocess.check_output(cmd.split()).strip().decode('utf-8')
