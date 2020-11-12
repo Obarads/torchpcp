@@ -54,7 +54,8 @@ def main(cfg : omegaconf.DictConfig):
 
     # change cfg
     checkpoint_cfg.dataset.root = cfg.dataset.root
-    checkpoint_cfg.dataset.name = "s3dis_scene"
+    checkpoint_cfg.dataset.name = "s3dis"
+    checkpoint_cfg.dataset.mode = "scene"
 
     model = get_model(checkpoint_cfg)
     dataset = get_dataset(checkpoint_cfg)

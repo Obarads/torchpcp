@@ -1,23 +1,29 @@
 # torch_point_cloud
-Point cloud processing with PyTorch
+## About
+- This repository is for managing the point cloud processing implementation with PyTorch.
+- Example codes work, even if you don't install torch_point_cloud package using [setup.py](setup.py).
 
-## Dev Environment
+## Environment
 - OS: Ubuntu 18.04
-- python: 3.7.7
 - GPU: RTX2080Ti x 1
 - CUDA: 10.2
-- packages
-  - ```
+- Python
+  - Version: 3.7.7
+  - Packages
+    ```
     pip install torch==1.6.0 torchvision=0.7.0
-    pip install torch-cluster==latest+cu102 -f https://pytorch-geometric.com/whl/torch-1.6.0.html
     pip install plyfile==0.7.2
     pip install tensorboardX
     pip install hydra-core --upgrade
     ```
 
 ## Evaluated model
+- The following models were trained and tested in my environment.
+- README.md of the following models shows the results of the model in implementations of this repository and papers.
 - [PointNet](examples/PointNet/README.md)
-  - ModelNet40
+  - [Classification (ModelNet40)](examples/PointNet/Classification/README.md)
+- [PointNet2ASIS (ASIS)](examples/PointNet2ASIS/README.md)
+  - [Instance and semantic segmentation (S3DIS Area5)](examples/PointNet2ASIS/Ins.Sem.Seg./README.md)
 
 ## Models of this repository
 ### PointNet

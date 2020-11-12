@@ -195,14 +195,14 @@ def log_string(out_str):
 
 
 # instance results
-log_string('Instance Segmentation MUCov: {}'.format(MUCov))
-log_string('Instance Segmentation mMUCov: {}'.format(np.mean(MUCov)))
-log_string('Instance Segmentation MWCov: {}'.format(MWCov))
-log_string('Instance Segmentation mMWCov: {}'.format(np.mean(MWCov)))
-log_string('Instance Segmentation Precision: {}'.format(precision))
-log_string('Instance Segmentation mPrecision: {}'.format(np.mean(precision)))
-log_string('Instance Segmentation Recall: {}'.format(recall))
-log_string('Instance Segmentation mRecall: {}'.format(np.mean(recall)))
+# log_string('Instance Segmentation MUCov: {}'.format(MUCov))
+# log_string('Instance Segmentation mMUCov: {}'.format(np.mean(MUCov)))
+# log_string('Instance Segmentation MWCov: {}'.format(MWCov))
+# log_string('Instance Segmentation mMWCov: {}'.format(np.mean(MWCov)))
+# log_string('Instance Segmentation Precision: {}'.format(precision))
+# log_string('Instance Segmentation mPrecision: {}'.format(np.mean(precision)))
+# log_string('Instance Segmentation Recall: {}'.format(recall))
+# log_string('Instance Segmentation mRecall: {}'.format(np.mean(recall)))
 
 # semantic results
 iou_list = []
@@ -211,11 +211,11 @@ for i in range(NUM_CLASSES):
     print(iou)
     iou_list.append(iou)
 
-log_string('Semantic Segmentation oAcc: {}'.format(sum(true_positive_classes)/float(sum(positive_classes))))
-#log_string('Semantic Segmentation Acc: {}'.format(true_positive_classes / gt_classes))
-log_string('Semantic Segmentation mAcc: {}'.format(np.mean(true_positive_classes / gt_classes)))
-log_string('Semantic Segmentation IoU: {}'.format(iou_list))
-log_string('Semantic Segmentation mIoU: {}'.format(1.*sum(iou_list)/NUM_CLASSES))
+# log_string('Semantic Segmentation oAcc: {}'.format(sum(true_positive_classes)/float(sum(positive_classes))))
+# #log_string('Semantic Segmentation Acc: {}'.format(true_positive_classes / gt_classes))
+# log_string('Semantic Segmentation mAcc: {}'.format(np.mean(true_positive_classes / gt_classes)))
+# log_string('Semantic Segmentation IoU: {}'.format(iou_list))
+# log_string('Semantic Segmentation mIoU: {}'.format(1.*sum(iou_list)/NUM_CLASSES))
 
 from torch_point_cloud.datasets.ASIS.utils.indoor3d_util import g_classes
 from torch_point_cloud.utils.converter import dict2mdtables
