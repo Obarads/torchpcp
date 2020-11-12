@@ -38,7 +38,9 @@
 ### Test
 - Evaluate trained ASIS model using S3DIS test data.
   ```bash
-  python test.py dataset.root=/home/coder/databox/datasets/S3DIS/ASIS/S3DIS/4096/scenes/ general.sizetxt=/path/to/mean_ins_size.txt model.resume=/path/to/f_model.path.tar
+  python test.py dataset.root=/path/to/preprocessed_data/scenes/ \
+  general.sizetxt=/path/to/mean_ins_size.txt \
+  model.resume=/path/to/f_model.path.tar
   ```
   - args
     - `dataset.root`: path to preprocessed data (`scenes` dir)
