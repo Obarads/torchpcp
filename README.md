@@ -12,6 +12,7 @@ Point cloud processing with PyTorch
     pip install torch-cluster==latest+cu102 -f https://pytorch-geometric.com/whl/torch-1.6.0.html
     pip install plyfile==0.7.2
     pip install tensorboardX
+    pip install hydra-core --upgrade
     ```
 
 ## Evaluated model
