@@ -46,4 +46,9 @@
   - [Xinlong Wang, Shu Liu, Xiaoyong Shen, Chunhua Shen and Jiaya Jia. Associatively Segmenting Instances and Semantics in Point Clouds. In CVPR, 2019.](https://arxiv.org/abs/1902.09852)
 - Original implementation:
   - [WXinlong. ASIS. In Github repository, 2019. (url:https://github.com/WXinlong/ASIS) (access:2020/7/16)](https://github.com/WXinlong/ASIS)
-
+### DGCNN
+- [Model of this repository](examples/DGCNN/README.md)
+- Paper:
+  - [Yue Wang, Yongbin Sun, Ziwei Liu, Sanjay E. Sarma, Michael M. Bronstein, and Justin M. Solomon. Dynamic Graph CNN for Learning on Point Clouds. ACM Transactions on Graphics (TOG), 2019.](https://arxiv.org/abs/1801.07829)
+- Original implementation:
+  - [WangYueFt. dgcnn. In Github repository, 2019. (url:https://github.com/WangYueFt/dgcnn) (access:2020/11/14)](https://github.com/WangYueFt/dgcnn)

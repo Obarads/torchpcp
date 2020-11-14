@@ -251,7 +251,7 @@ class S3DISBlockDataset(dict):
             else:
                 self[key] = S3DISPath2BlockDataset(path_list, num_points)
 
-def get_block_paths(root, areas, extension):
+def get_block_paths(root, areas, extension=".h5"):
     assert extension in [".h5", ".npy"]
 
     area_list = []

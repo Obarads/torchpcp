@@ -92,12 +92,15 @@ def furthest_point_sample(coords, num_samples):
 
 def index2points(points, idx):
     """Construct edge feature for each point
-    Args:
-        points: (batch_size, num_dims, num_points)
-        idx: (batch_size, num_points) or (batch_size, num_points, k)
 
-    Returns:
-        edge_features: (batch_size, num_dims, num_points) or (batch_size, num_dims, num_points, k)
+    Parameters
+    ----------
+    points: (batch_size, num_dims, num_points)
+    idx: (batch_size, num_points) or (batch_size, num_points, k)
+
+    Returns
+    -------
+    edge_features: (batch_size, num_dims, num_points) or (batch_size, num_dims, num_points, k)
     """
 
     B, C, N = points.shape
