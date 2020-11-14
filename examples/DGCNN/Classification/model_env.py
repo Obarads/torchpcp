@@ -11,6 +11,9 @@ from torch_point_cloud.datasets.DGCNN import ModelNet
 # model
 from torch_point_cloud.models.DGCNN import DGCNNClassification
 
+# loss
+from torch_point_cloud.losses.LabelSmoothingLoss import LabelSmoothingLoss
+
 def get_dataset(cfg):
     if cfg.dataset.name == "modelnet40":
         dataset = ModelNet.ModelNet40(
@@ -54,15 +57,16 @@ def get_optimizer(cfg, model):
 def get_scheduler(cfg, optimizer):
     scheduler = lr_scheduler.CosineAnnealingLR(
         optimizer,
-        T_max=cfg.scheduler.t_max,
-        eta_min=cfg.scheduler.eta_min
+        T_max=cfg.general.epochs,
+        eta_min=cfg.optimizer.lr
     )
     return scheduler
 
 def get_losses(cfg):
     # get losses
     criterion = {}
-    criterion["cross_entropy"] = nn.CrossEntropyLoss()
+    # criterion["cross_entropy"] = nn.CrossEntropyLoss()
+    criterion["label_smoothing"] = LabelSmoothingLoss()
     return criterion
 
 def processing(model, criterion, data, meters, device, return_outputs=False):
@@ -79,7 +83,8 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
 
     # compute losses with criterion
     loss = 0
-    loss += criterion["cross_entropy"](pred_cls_labels, cls_labels)
+    # loss += criterion["cross_entropy"](pred_cls_labels, cls_labels)
+    loss += criterion["label_smoothing"](pred_cls_labels, cls_labels)
 
     # save metrics
     batch_loss.update(loss.item())

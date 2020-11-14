@@ -48,12 +48,12 @@ optimizer:
   lr: 0.001
 
 # Scheduler
-scheduler:
+scheduler: null
   # for iterations
-  t_max: 20
-  eta_min: 0.5
+  # t_max: 250 # scheduler.t_max = general.epochs
+  # eta_min: 0.001
 
 # Loss function setting
-criterion:
-  smoothing: True
+criterion: null
+  # name: 
 
