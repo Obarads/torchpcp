@@ -24,6 +24,8 @@
   - [Classification (ModelNet40)](examples/PointNet/Classification/README.md)
 - [PointNet2ASIS (ASIS)](examples/PointNet2ASIS/README.md)
   - [Instance and semantic segmentation (S3DIS Area5)](examples/PointNet2ASIS/Ins.Sem.Seg./README.md)
+- [DGCNN](examples/DGCNN/README.md)
+  - [Classification (ModelNet40)](examples/DGCNN/Classification/README.md)
 
 ## Models of this repository
 ### PointNet

@@ -20,7 +20,7 @@
     - trained models (`model.path.tar` and `f_model.path.tar`)
 
 ### Test Result
-- Evaluate trained PointNet model using ModelNet40 test data.
+- Evaluate trained DGCNN model using ModelNet40 test data.
   ```bash
   python test.py dataset.root=/path/to/modelnet40_ply_hdf5_2048/ \
   model.resume=/path/to/f_model.path.tar

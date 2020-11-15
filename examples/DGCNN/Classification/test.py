@@ -53,7 +53,7 @@ def main(cfg:omegaconf.DictConfig):
     # start test
     test(cfg, model, dataset["test"], criterion)
 
-    print("Finish training.")
+    print("Finish test.")
 
 # training
 def test(cfg, model, dataset, criterion, publisher="test"):

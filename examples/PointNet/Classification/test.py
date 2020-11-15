@@ -46,7 +46,7 @@ def main():
     model.load_state_dict(checkpoint["model"])
 
     eval(checkpoint_cfg, model, dataset["test"], criterion)
-    print("Finish evaluation.")
+    print("Finish test.")
 
 # evaluation
 def eval(cfg, model, dataset, criterion, publisher="test"):
