@@ -129,16 +129,6 @@ def get_git_commit_hash():
     hash_code = subprocess.check_output(cmd.split()).strip().decode('utf-8')
     return hash_code
 
-def download_and_unzip(www, output_path):
-    zip_file = os.path.basename(www)
-    if not os.path.exists(zip_file):
-        os.system('wget %s --no-check-certificate' % (www))
-    folder_name = zip_file[:-4]
-    make_folders(folder_name)
-    os.system("unzip %s -d %s" % ('"'+zip_file+'"', "'"+folder_name+"'"))
-    os.system('mv %s %s' % ('"'+folder_name+'"', '"'+output_path+'"'))
-    os.system('rm %s' % ('"'+zip_file+'"'))
-
 class PytorchTools:
     def __init__(self):
         print("This class is for staticmethod.")

@@ -6,7 +6,6 @@ import torch
 from torch.utils.data import Dataset
 
 from .utils import provider
-from torch_point_cloud.utils.setting import download_and_unzip
 
 class ModelNet40Dataset(Dataset):
     def __init__(self, root, num_points, split):
@@ -49,23 +48,6 @@ class ModelNet40(dict):
             split = [split]
         for s in split:
             self[s] = ModelNet40Dataset(root=root, num_points=num_points, split=s)
-
-# https://github.com/charlesq34/pointnet/blob/master/provider.py
-def download_ModelNet40(path):
-    """
-    Download ModelNet40 dataset.
-    Parameters
-    ----------
-    path: str
-        path to save a dataset
-    """
-    # Download dataset for point cloud classification
-    DATA_DIR = path
-    if not os.path.exists(DATA_DIR):
-        os.mkdir(DATA_DIR)
-    if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
-        www = 'https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip'
-        download_and_unzip(www, DATA_DIR)
 
 def rotation_and_jitter(batch):
     point_clouds, labels = list(zip(*batch))

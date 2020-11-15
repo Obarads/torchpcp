@@ -3,6 +3,8 @@ import h5py
 import glob
 import numpy as np
 
+from torch_point_cloud.datasets.utils.common import download_and_unzip
+
 # from PointNet
 # https://github.com/charlesq34/pointnet/blob/539db60eb63335ae00fe0da0c8e38c791c764d2b/provider.py#L90
 def load_file(h5_filename):
@@ -27,4 +29,19 @@ def get_paths(root, split):
     paths = glob.glob(os.path.join(root, 'ply_data_%s*.h5'%split))
     return paths
 
-
+# https://github.com/charlesq34/pointnet/blob/master/provider.py
+def download(path):
+    """
+    Download modelnet40_ply_hdf5_2048 dataset.
+    Parameters
+    ----------
+    path: str
+        path to save a dataset
+    """
+    # Download dataset for point cloud classification
+    DATA_DIR = path
+    if not os.path.exists(DATA_DIR):
+        os.mkdir(DATA_DIR)
+    if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
+        www = 'https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip'
+        download_and_unzip(www, DATA_DIR)
