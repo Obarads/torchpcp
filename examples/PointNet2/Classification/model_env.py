@@ -6,19 +6,20 @@ from torch import nn
 from torch.optim import lr_scheduler
 
 # dataset
-from torch_point_cloud.datasets.PointNet.ModelNet import (
-    ModelNet40, rotation_and_jitter)
+from torch_point_cloud.datasets.PointNet import ModelNet
 
 # model
 from torch_point_cloud.models.PointNet2 import PointNet2SSGClassification
 
 # loss
-from torch_point_cloud.losses.feature_transform_regularizer import (
-    feature_transform_regularizer)
+from torch_point_cloud.losses.LabelSmoothingLoss import LabelSmoothingLoss
 
 def get_dataset(cfg):
-    if dataset.name == "ModelNet40":
-        dataset = ModelNet40(cfg.dataset.root, cfg.num_points)
+    if cfg.dataset.name == "modelnet40":
+        dataset = ModelNet.ModelNet40(
+            cfg.dataset.root,
+            cfg.dataset.num_points
+        )
     else:
         raise NotImplementedError('Unknown dataset: ' + cfg.dataset.name)
     return dataset
@@ -26,49 +27,69 @@ def get_dataset(cfg):
 def get_model(cfg):
     dataset_name = cfg.dataset.name
     num_classes = cfg.dataset[dataset_name].num_classes
-    if cfg.model == "pointnet2_ssg_cls":
-        model = PointNet2SSGClassification(num_classes, cfg.point_feature_size)
+    if cfg.model.name == "pointnet2ssg":
+        model = PointNet2SSGClassification(
+            num_classes, 
+            cfg.model.point_feature_size
+        )
     else:
-        raise NotImplementedError('Unknown model: ' + cfg.model)
-    model.to(cfg.device)
+        raise NotImplementedError('Unknown model: ' + cfg.model.name)
+    model.to(cfg.general.device)
     return model
 
 def get_optimizer(cfg, model):
-    optimizer = optim.Adam(model.parameters(), lr=cfg.lr)
+    optimizer = optim.Adam(
+        model.parameters(), 
+        lr=cfg.optimizer.lr,
+    )
+    # optimizer = optim.SGD(
+    #     model.parameters(), 
+    #     lr=cfg.optimizer.lr*100, 
+    #     momentum=cfg.optimizer.momentum, 
+    #     weight_decay=1e-4
+    # )
+
     return optimizer
 
 def get_scheduler(cfg, optimizer):
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=cfg.epoch_size, 
-                                    gamma=cfg.decay_rate)
+    scheduler = lr_scheduler.StepLR(
+        optimizer, 
+        step_size=cfg.scheduler.epoch_size, 
+        gamma=cfg.scheduler.decay_rate
+    )
     return scheduler
 
-def get_losses():
+def get_losses(cfg):
     # get losses
     criterion = {}
     criterion["cross_entropy"] = nn.CrossEntropyLoss()
     return criterion
 
-def processing(cfg, model, criterion, data, meters):
+def processing(model, criterion, data, meters, device, return_outputs=False):
     acc_meter, batch_loss = meters
-    point_clouds, labels = data
+    point_clouds, cls_labels = data
 
     # preprocessing of data
     point_clouds = torch.transpose(point_clouds, 1, 2)
-    point_clouds = point_clouds.to(cfg.device, dtype=torch.float32, non_blocking=True)
-    labels = labels.to(cfg.device, dtype=torch.long, non_blocking=True)
+    point_clouds = point_clouds.to(device, dtype=torch.float32)
+    cls_labels = cls_labels.to(device, dtype=torch.long)
 
     # model forward processing
-    pred_labels, _, feat_trans = model(point_clouds)
+    pred_cls_labels = model(point_clouds)
 
     # compute losses with criterion
     loss = 0
-    loss += criterion["cross_entropy"](pred_labels, labels)
+    loss += criterion["cross_entropy"](pred_cls_labels, cls_labels)
+    # loss += criterion["label_smoothing"](pred_cls_labels, cls_labels)
 
     # save metrics
     batch_loss.update(loss.item())
-    acc_meter.update(pred_labels, labels)
+    acc_meter.update(pred_cls_labels, cls_labels)
 
-    return loss
+    if return_outputs:
+        return loss, pred_cls_labels
+    else:
+        return loss
 
 def save_params(model_path, epoch, cfg, model, optimizer, scheduler):
     torch.save({
@@ -84,3 +105,5 @@ def get_checkpoint(path):
     checkpoint = torch.load(path, map_location='cpu')
     checkpoint_cfg = omegaconf.OmegaConf.create(checkpoint["cfg"])
     return checkpoint, checkpoint_cfg
+
+

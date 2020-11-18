@@ -1,14 +1,23 @@
-# Network setting
-## path to a trained model
-resume: ???
+# General
+general:
+  ## seed value
+  seed: 71
+  ## reproducibility
+  reproducibility: False
+  ## use cuda
+  device: cuda
+  batch_size: 32
 
-# Other
-## output folder path
-output_folder: outputs
-## seed value
-seed: 71
-## reproducibility
-reproducibility: False
-## use cuda
-device: cuda
+# dataset settings
+dataset:
+  name: modelnet40
+  root: ???
+
+loader:
+  nworkers: 32
+
+# Network settings
+model:
+  ## path to a trained model
+  resume: ???
 

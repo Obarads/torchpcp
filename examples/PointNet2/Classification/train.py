@@ -1,8 +1,10 @@
 import os, sys
+CW_DIR = os.getcwd()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.abspath(os.path.join(BASE_DIR, "configs/train.yaml"))
 sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "../../../"))) # for package path
 
+import hydra
 import omegaconf
 import numpy as np
 from tqdm import tqdm
@@ -11,12 +13,8 @@ from tensorboardX import SummaryWriter
 import torch
 from torch.utils.data import DataLoader
 
-# dataset
-from torch_point_cloud.datasets.PointNet.ModelNet import rotation_and_jitter
-
 # tools
-from torch_point_cloud.utils.setting import (PytorchTools, get_configs,
-                                             make_folders)
+from torch_point_cloud.utils.setting import PytorchTools, fix_path_in_configs
 from torch_point_cloud.utils.metrics import MultiAssessmentMeter, LossMeter
 from torch_point_cloud.utils.converter import dict2tensorboard
 
@@ -24,46 +22,58 @@ from torch_point_cloud.utils.converter import dict2tensorboard
 from model_env import processing, save_params
 from model_env import get_model, get_dataset, get_losses, get_optimizer, get_scheduler
 
-def main():
-    # get configs
-    cfg, _, _ = get_configs(CONFIG_PATH)
-
-    # make a output folder
-    make_folders(cfg.output_folder)
+@hydra.main(config_name=CONFIG_PATH)
+def main(cfg:omegaconf.DictConfig):
+    # fix paths
+    cfg = fix_path_in_configs(CW_DIR, cfg, [["dataset","root"]])
 
     # set a seed 
-    PytorchTools.set_seed(cfg.seed, cfg.device, cfg.reproducibility)
+    PytorchTools.set_seed(
+        cfg.general.seed, 
+        cfg.general.device, 
+        cfg.general.reproducibility
+    )
 
     # set a device
-    cfg.device = PytorchTools.select_device(cfg.device)
+    cfg.general.device = PytorchTools.select_device(cfg.general.device)
 
     model = get_model(cfg)
     dataset = get_dataset(cfg)
-    criterion = get_losses()
+    criterion = get_losses(cfg)
     optimizer = get_optimizer(cfg, model)
     scheduler = get_scheduler(cfg, optimizer)
 
     # get a logger
-    writer = SummaryWriter(cfg.output_folder)
+    writer = SummaryWriter("./")
 
     # start training
-    for epoch in range(cfg.start_epoch, cfg.epochs):
-        print('Epoch {}/{}:'.format(epoch, cfg.epochs))
+    loader = tqdm(range(cfg.general.start_epoch, cfg.general.epochs), 
+                  desc="Training", ncols=70)
+    for epoch in loader:
+        # print('Epoch {}/{}:'.format(epoch, cfg.general.epochs))
 
         # training
-        train_log = train(cfg, model, dataset["train"], optimizer, criterion, 
-                          scheduler)
+        train_log = train(
+            cfg, 
+            model, 
+            dataset["train"], 
+            optimizer, 
+            criterion, 
+            scheduler
+        )
 
         dict2tensorboard(train_log, writer, epoch)
 
         # save params and model
-        if (epoch+1) % cfg.save_epoch == 0 and cfg.save_epoch != -1:
-            save_params(os.path.join(cfg.output_folder, "model.path.tar"), 
-                        epoch+1, cfg, model, optimizer, scheduler)
+        if (epoch+1) % cfg.general.save_epoch == 0 and \
+            cfg.general.save_epoch != -1:
+            save_params("model.path.tar", epoch+1, cfg, model, optimizer, 
+                        scheduler)
 
-    print('Epoch {}/{}:'.format(cfg.epochs, cfg.epochs))
-    save_params(os.path.join(cfg.output_folder, "f_model.path.tar"), 
-                cfg.epochs, cfg, model, optimizer, scheduler)
+    print('Epoch {}/{}:'.format(cfg.general.epochs, cfg.general.epochs))
+    save_params("f_model.path.tar", cfg.general.epochs, cfg, model, optimizer, 
+                scheduler)
+
     writer.close()
 
     print("Finish training.")
@@ -74,24 +84,24 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     loader = DataLoader(
         #Subset(dataset["train"],range(320)),
         dataset,
-        batch_size=cfg.batch_size,
-        num_workers=cfg.nworkers,
+        batch_size=cfg.general.batch_size,
+        num_workers=cfg.loader.nworkers,
         pin_memory=True,
         shuffle=True,
-        collate_fn=rotation_and_jitter
     )
-    loader = tqdm(loader, ncols=100, desc=publisher)
+    # loader = tqdm(loader, ncols=100, desc=publisher)
 
-    acc_meter = MultiAssessmentMeter(num_classes=cfg.num_classes, 
-                                     metrics=["class","overall"])
+    acc_meter = MultiAssessmentMeter(
+        num_classes=dataset.num_classes, 
+        metrics=["class","overall","iou"]
+    )
     batch_loss = LossMeter()
     meters = (acc_meter, batch_loss)
 
-    for lidx, (point_clouds, labels) in enumerate(loader):
+    for data in loader:
         optimizer.zero_grad()
 
-        data = (point_clouds, labels)
-        loss = processing(cfg, model, criterion, data, meters)
+        loss = processing(model, criterion, data, meters, cfg.general.device)
 
         loss.backward()
         optimizer.step()
@@ -107,9 +117,14 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     # get epoch loss and acc
     train_loss = batch_loss.compute()
     train_acc = acc_meter.compute()
-    print('-> Train loss: {}  mAcc: {} oAcc: {}'.format(train_loss, 
-                                                        train_acc["class"],
-                                                        train_acc["overall"]))
+    # print(
+    #     '-> Train loss: {}  mAcc: {} iou: {} oAcc: {}'.format(
+    #         train_loss, 
+    #         train_acc["class"],
+    #         train_acc["iou"],
+    #         train_acc["overall"]
+    #     )
+    # )
 
     # save loss and acc to tensorboard
     lr = scheduler.get_last_lr()[0]
@@ -117,7 +132,8 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
         "lr": lr,
         "train/loss": train_loss,
         "train/mAcc": train_acc["class"],
-        "train/oAcc": train_acc["overall"]
+        "train/oAcc": train_acc["overall"],
+        "train/IoU": train_acc["iou"]
     }
 
     return log_dict

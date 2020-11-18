@@ -1,49 +1,54 @@
+# General
+general:
+  ## batch size
+  batch_size: 32
+  ## epochs
+  epochs: 250
+  ## start epoch
+  start_epoch: 0
+  ## test and save term (If XX_epoch is -1, XX does not work.)
+  save_epoch: 1
+  ## seed value
+  seed: 71
+  ## reproducibility
+  reproducibility: False
+  ## use cuda
+  device: cuda
+
 # Dataset
 ## each dataset setting
 dataset:
-  name: ModelNet40
+  ## dataset name: [modelnet40]
+  name: modelnet40
+  ## dataset dir path
   root: ???
-  ModelNet40:
+  modelnet40:
     num_classes: 40
-## number of points in a block
-num_points: 1024
-    ## batch size
-batch_size: 32
-## loader cpu
-nworkers: 4
+  ## number of points
+  num_points: 1024
+
+# Dataset Loader
+loader:
+  ## loader cpu
+  nworkers: 8
 
 # Network settings
-## select pointnet type
-model: pointnet2_ssg_cls
-## features size other than xyz
-point_feature_size: 0
+model:
+  # model name [pointnet2ssg]
+  name: pointnet2ssg
+  ## size of input features other than xyz
+  point_feature_size: 0
 
 # Optimizer settings
-## optimizer name (Adam or SGD)
-optim: adam
-## learning rate
-lr: 0.001
-## SGD
-### momentum
-# momentum: 0.9
+optimizer:
+  lr: 0.001
 
 # Scheduler
-# for iterations
-epoch_size: 20
-decay_rate: 0.7
+scheduler:
+  epoch_size: 20
+  decay_rate: 0.7
 
-# Other
-## epochs
-epochs: 250
-## start epoch
-start_epoch: 0
-## test and save term (If XX_epoch is -1, XX does not work.)
-save_epoch: 1
-## output folder path
-output_folder: outputs
-## seed value
-seed: 71
-## reproducibility
-reproducibility: False
-## use cuda
-device: cuda
+# Loss function setting
+criterion: null
+  # name: 
+
