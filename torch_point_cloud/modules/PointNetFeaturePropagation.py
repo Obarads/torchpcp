@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from torch_point_cloud.modules.Layer import MLP1D
+from torch_point_cloud.modules.Layer import Conv1DModule
 from torch_point_cloud.modules.functional.sampling import (
     k_nearest_neighbors,
     index2points
@@ -15,7 +15,7 @@ class PointNetFeaturePropagation(nn.Module):
         layers = []
         in_channel = init_in_channel
         for out_channel in mlp:
-            layers.append(MLP1D(in_channel, out_channel))
+            layers.append(Conv1DModule(in_channel, out_channel))
             in_channel = out_channel
         self.mlp = nn.Sequential(*layers)
 

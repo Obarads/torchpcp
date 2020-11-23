@@ -10,25 +10,25 @@ from torch_point_cloud.modules.TransformNet import (
     FeatureTransformNet
 )
 
-class MLP1D(Layers):
+class Conv1DModule(Layers):
     def __init__(self, in_channels, out_channels, 
                  act=nn.ReLU(inplace=True)):
         conv = nn.Conv1d(in_channels, out_channels, 1)
         nn.init.xavier_uniform_(conv.weight)
         norm = nn.BatchNorm1d(out_channels)
-        super(MLP1D, self).__init__(conv, norm, act)
+        super().__init__(conv, norm, act)
 
-class Linear(Layers):
+class LinearModule(Layers):
     def __init__(self, in_features, out_features, act=nn.ReLU(inplace=True)):
         layer = nn.Linear(in_features, out_features)
         nn.init.xavier_uniform_(layer.weight)
         norm = nn.BatchNorm1d(out_features)
-        super(Linear, self).__init__(layer, norm, act)
+        super().__init__(layer, norm, act)
 
 def create_ModuleList(num_in_channels, num_out_channel_list):
     layers = nn.ModuleList()
     for num_out_channels in num_out_channel_list:
-        layers.append(MLP1D(num_in_channels, num_out_channels))
+        layers.append(Conv1DModule(num_in_channels, num_out_channels))
         num_in_channels = num_out_channels
     return layers
 
@@ -172,9 +172,9 @@ class PointNetClassification(nn.Module):
         nn.init.zeros_(fc.bias)
         nn.init.xavier_uniform_(fc.weight)
         self.decoder = nn.Sequential(
-            Linear(1024, 512),
+            LinearModule(1024, 512),
             nn.Dropout(p=0.3),
-            Linear(512, 256),
+            LinearModule(512, 256),
             nn.Dropout(p=0.3),
             fc
         ) 
@@ -229,10 +229,10 @@ class PointNetSemanticSegmentation(nn.Module):
         nn.init.zeros_(conv.bias)
         nn.init.xavier_uniform_(conv.weight)
         self.decoder = nn.Sequential(
-            MLP1D(1088, 512),
-            MLP1D(512, 256),
-            MLP1D(256, 128),
-            MLP1D(128, 128),
+            Conv1DModule(1088, 512),
+            Conv1DModule(512, 256),
+            Conv1DModule(256, 128),
+            Conv1DModule(128, 128),
             conv
         )
 
@@ -276,8 +276,8 @@ class PointNetPartSegmentation(nn.Module):
         nn.init.zeros_(fc.bias)
         nn.init.xavier_uniform_(fc.weight)
         self.cla_decoder = nn.Sequential(
-            Linear(2048, 256),
-            Linear(256, 256),
+            LinearModule(2048, 256),
+            LinearModule(256, 256),
             nn.Dropout(p=0.3),
             fc
         )
@@ -287,12 +287,12 @@ class PointNetPartSegmentation(nn.Module):
         nn.init.zeros_(conv.bias)
         nn.init.xavier_uniform_(conv.weight)
         self.seg_decoder = nn.Sequential(
-            MLP1D(4944, 256),
-            # MLP1D(3024, 256),
+            Conv1DModule(4944, 256),
+            # Conv1DModule(3024, 256),
             nn.Dropout(p=0.2),
-            MLP1D(256, 256),
+            Conv1DModule(256, 256),
             nn.Dropout(p=0.2),
-            MLP1D(256, 128),
+            Conv1DModule(256, 128),
             conv
         )
 

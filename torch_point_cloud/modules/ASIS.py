@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.Layer import MLP1D
+from torch_point_cloud.modules.Layer import Conv1DModule
 # from torch_point_cloud.modules.Sampling import knn_index, index2points
 from torch_point_cloud.modules.functional.sampling import (
     k_nearest_neighbors,
@@ -20,7 +20,7 @@ class ASIS(nn.Module):
         ) # input: F_ISEM, output: P_SEM
 
         # interactive module: sem to ins
-        self.adaptation = MLP1D(sem_in_channels, ins_in_channels)
+        self.adaptation = Conv1DModule(sem_in_channels, ins_in_channels)
 
         # ins branch
         self.ins_emb_fc = nn.Sequential(

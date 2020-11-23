@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from torch_point_cloud.modules.Layer import MLP1D, Linear
+from torch_point_cloud.modules.Layer import Conv1DModule, LinearModule
 from torch_point_cloud.modules.Sampling import (
     index_points, query_ball_point, sample_and_group, square_distance)
 from torch_point_cloud.modules.PointNetSetAbstraction import(
@@ -36,9 +36,9 @@ class PointNet2SSGClassification(nn.Module):
                                           mlp=[256,512, 1024], group_all=True)
 
         self.decoder = nn.Sequential(
-            Linear(1024, 512),
+            LinearModule(1024, 512),
             nn.Dropout(0.5),
-            Linear(512, 256),
+            LinearModule(512, 256),
             nn.Dropout(0.5),
             nn.Linear(256, num_classes)
         )
@@ -99,7 +99,7 @@ class PointNet2SSGSemanticSegmentation(nn.Module):
         self.fp1 = PointNetFeaturePropagation(128+in_channel, [128, 128, 128])
 
         self.output_layers = nn.Sequential(
-            MLP1D(128, 128),
+            Conv1DModule(128, 128),
             nn.Dropout(0.5),
             nn.Conv1d(128, num_classes, 1)
         )

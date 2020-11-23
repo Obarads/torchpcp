@@ -5,15 +5,15 @@ from torch import nn
 
 from torch_point_cloud.modules.Layer import Layers
 
-class MLP1D(Layers):
+class Conv1DModule(Layers):
     def __init__(self, in_channels, out_channels, 
                  act=nn.ReLU(inplace=True)):
         conv = nn.Conv1d(in_channels, out_channels, 1)
         nn.init.xavier_uniform_(conv.weight)
         norm = nn.BatchNorm1d(out_channels)
-        super(MLP1D, self).__init__(conv, norm, act)
+        super().__init__(conv, norm, act)
 
-class Linear(Layers):
+class LinearModule(Layers):
     def __init__(self, in_features, out_features, act=nn.ReLU(inplace=True)):
         layer = nn.Linear(in_features, out_features)
         nn.init.xavier_uniform_(layer.weight)
@@ -29,9 +29,9 @@ class InputTransformNet(nn.Module):
 
         # layers before a max-pooling
         self.encoder = nn.Sequential(
-            MLP1D(3, 64),
-            MLP1D(64, 128),
-            MLP1D(128, 1024)
+            Conv1DModule(3, 64),
+            Conv1DModule(64, 128),
+            Conv1DModule(128, 1024)
         )
 
         # last layer setting
@@ -42,8 +42,8 @@ class InputTransformNet(nn.Module):
 
         # layers after a max-pooling
         self.decoder = nn.Sequential(
-            Linear(1024, 512),
-            Linear(512, 256),
+            LinearModule(1024, 512),
+            LinearModule(512, 256),
             fc
         )
     
@@ -64,9 +64,9 @@ class FeatureTransformNet(nn.Module):
 
         # layers before a max-pooling
         self.encoder = nn.Sequential(
-            MLP1D(k, 64),
-            MLP1D(64, 128),
-            MLP1D(128, 1024)
+            Conv1DModule(k, 64),
+            Conv1DModule(64, 128),
+            Conv1DModule(128, 1024)
         )
 
         # last layer setting
@@ -77,8 +77,8 @@ class FeatureTransformNet(nn.Module):
 
         # layers after a max-pooling
         self.decoder = nn.Sequential(
-            Linear(1024, 512),
-            Linear(512, 256),
+            LinearModule(1024, 512),
+            LinearModule(512, 256),
             fc
         )
 

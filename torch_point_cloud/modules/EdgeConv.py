@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.Layer import MLP2D
+from torch_point_cloud.modules.Layer import Conv2DModule
 from torch_point_cloud.modules.functional.sampling import (
     index2points,
     k_nearest_neighbors
@@ -10,7 +10,7 @@ from torch_point_cloud.modules.functional.sampling import (
 class EdgeConv(nn.Module):
     def __init__(self, in_channel, out_channel, k, memory_saving=False):
         super().__init__()
-        self.conv = MLP2D(
+        self.conv = Conv2DModule(
             in_channel, 
             out_channel, 
             act=nn.LeakyReLU(negative_slope=0.2),

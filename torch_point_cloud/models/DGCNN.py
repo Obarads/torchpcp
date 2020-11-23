@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from torch_point_cloud.modules.EdgeConv import EdgeConv
-from torch_point_cloud.modules.Layer import Linear, MLP1D
+from torch_point_cloud.modules.Layer import Linear, PWConv1DModule
 
 class DGCNNClassification(nn.Module):
     def __init__(self, out_channel, k, emb_dims, dropout_p):
@@ -13,7 +13,7 @@ class DGCNNClassification(nn.Module):
         self.conv2 = EdgeConv(64*2, 64, k)
         self.conv3 = EdgeConv(64*2, 128, k)
         self.conv4 = EdgeConv(128*2, 256, k)
-        self.conv5 = MLP1D(512, emb_dims)
+        self.conv5 = PWConv1DModule(512, emb_dims)
 
         self.linear1 = Linear(emb_dims*2, 512, 
                               act=nn.LeakyReLU(negative_slope=0.2), 

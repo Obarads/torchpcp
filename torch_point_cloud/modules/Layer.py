@@ -10,28 +10,31 @@ class Layers(nn.Module):
         if act is not None:
             module_list.append(act)
 
-        self.mlp = nn.Sequential(
+        self.net = nn.Sequential(
             *module_list
         )
 
     def forward(self, x):
-        return self.mlp(x)
+        return self.net(x)
 
-class MLP1D(Layers):
+class Conv1DModule(Layers):
     def __init__(self, in_channels, out_channels, act=nn.ReLU(inplace=True), 
                  conv_args={}, bn_args={}):
+        """
+        Point-wise conv modules
+        """
         conv = nn.Conv1d(in_channels, out_channels, 1, **conv_args)
         norm = nn.BatchNorm1d(out_channels, **bn_args)
         super().__init__(conv, norm, act)
 
-class MLP2D(Layers):
+class Conv2DModule(Layers):
     def __init__(self, in_channels, out_channels, act=nn.ReLU(inplace=True),
                  conv_args={}, bn_args={}):
         conv = nn.Conv2d(in_channels, out_channels, (1,1), **conv_args)
         norm = nn.BatchNorm2d(out_channels, **bn_args)
         super().__init__(conv, norm, act)
 
-class Linear(Layers):
+class LinearModule(Layers):
     def __init__(self, in_features, out_features, act=nn.ReLU(inplace=True),
                  linear_args={}, bn_args={}):
         layer = nn.Linear(in_features, out_features, **linear_args)

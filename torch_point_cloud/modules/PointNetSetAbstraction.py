@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from torch_point_cloud.modules.Layer import MLP2D
+from torch_point_cloud.modules.Layer import Conv2DModule
 from torch_point_cloud.modules.functional.sampling import (
     index2points,
     furthest_point_sample
@@ -129,11 +129,11 @@ class PointNetSetAbstraction(nn.Module):
     def __init__(self, num_fps_points, radius, num_bq_points, init_in_channel, mlp, group_all):
         super().__init__()
 
-        # create MLPs for a PointNet Layer
+        # create MLP for a PointNet Layer
         layers = []
         in_channel = init_in_channel
         for out_channel in mlp:
-            layers.append(MLP2D(in_channel, out_channel))
+            layers.append(Conv2DModule(in_channel, out_channel))
             in_channel = out_channel
         self.mlp = nn.Sequential(*layers)
 
@@ -206,7 +206,7 @@ class PointNetSetAbstractionMSG(nn.Module):
             layers = []
             in_channel = init_in_channel + 3
             for out_channel in mlp:
-                layers.append(MLP2D(in_channel, out_channel))
+                layers.append(Conv2DModule(in_channel, out_channel))
                 in_channel = out_channel
             self.mlp_list.append(nn.Sequential(*layers))
 
