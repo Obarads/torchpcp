@@ -40,3 +40,30 @@ class LinearModule(Layers):
         layer = nn.Linear(in_features, out_features, **linear_args)
         norm = nn.BatchNorm1d(out_features, **bn_args)
         super().__init__(layer, norm, act)
+
+class PointwiseConv2D(Layers):
+    def __init__(self, in_channel, out_channel, act=nn.ReLU(inplace=True),
+                 conv_args={}, bn_args={}):
+        conv = nn.Conv2d(in_channel, out_channel, (1,1), **conv_args)
+        norm = nn.BatchNorm2d(out_channel, **bn_args)
+        super().__init__(conv, norm, act)
+
+class DepthwiseConv2D(Layers):
+    def __init__(self, in_channel, kernels_per_layer, kernel_size, act=nn.ReLU(inplace=True),
+                 conv_args={}, bn_args={}):
+        output_channel = in_channel * kernels_per_layer
+        conv = nn.Conv2d(in_channel, output_channel, kernel_size, groups=in_channel, **conv_args)
+        norm = nn.BatchNorm2d(output_channel, **bn_args)
+        super().__init__(conv, norm, act)
+
+class DepthwiseSeparableConv2D(Layers):
+    def __init__(self, in_channel, out_channel, kernels_per_layer, kernel_size, act=nn.ReLU(inplace=True),
+                 conv_args={}, bn_args={}):
+        depthwise_out_channel = in_channel * kernels_per_layer
+        conv = nn.Sequential(
+            nn.Conv2d(in_channel, depthwise_out_channel, kernel_size, groups=in_channel, **conv_args),
+            nn.Conv2d(depthwise_out_channel, out_channel, (1,1))
+        )
+        norm = nn.BatchNorm2d(out_channel, **bn_args)
+        super().__init__(conv, norm, act)
+
