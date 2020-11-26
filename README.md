@@ -1,6 +1,8 @@
 # torch_point_cloud
 ## About
 - This repository is for managing the point cloud processing implementation with PyTorch.
+- Test results of models are shown on README.md (ex: [examples/PointNet/README.md](examples/PointNet/README.md)) in the model folder.
+  - Please look at a list in ["Evaluated model" section](#evaluated-model) when checking evaluated models.
 - Example codes work, even if you don't install torch_point_cloud package using [setup.py](setup.py).
 
 ## Environment
