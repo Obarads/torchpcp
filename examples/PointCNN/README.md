@@ -5,9 +5,8 @@
 ## Links
 ### Classification
 - [code](./Classification/README.md)
-<!--
 - **ModelNet40**
-  - |Impl.|mAcc|oAcc|
+<!--  - |Impl.|mAcc|oAcc|
     |-----|----|----|
     |[Original (paper)](https://github.com/WangYueFt/dgcnn)|90.2|92.9|
     |[Original (paper)](https://github.com/WangYueFt/dgcnn) (2048 points)|90.7|93.5|

@@ -1,4 +1,6 @@
 import numpy as np
+import random
+
 import torch
 from torch import nn
 from torch.autograd import Function
@@ -195,6 +197,23 @@ def localize(center_points, points):
     local_points = points - center_points
     return local_points
 
+def random_sampling(num_points, num_samples):
+    """
+    get indices using random subsampling
 
+    Parameters
+    ----------
+    num_points : int
+        number of points
+    num_samples : int
+        number of samples
 
+    Return
+    ------
+    sampled_points_indices
+        subsampled point indices
+    """
+
+    sampled_points_indices = random.sample(list(range(num_points)), num_samples)
+    return sampled_points_indices
 

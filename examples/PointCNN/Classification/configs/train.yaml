@@ -1,0 +1,59 @@
+# General
+general:
+  ## batch size
+  batch_size: 32
+  ## epochs
+  epochs: 250
+  ## start epoch
+  start_epoch: 0
+  ## test and save term (If XX_epoch is -1, XX does not work.)
+  save_epoch: 1
+  ## seed value
+  seed: 71
+  ## reproducibility
+  reproducibility: False
+  ## use cuda
+  device: cuda
+
+# Dataset
+## each dataset setting
+dataset:
+  ## dataset name: [modelnet40]
+  name: modelnet40
+  ## dataset dir path
+  root: ???
+  modelnet40:
+    num_classes: 40
+  ## number of points
+  num_points: 1024
+
+# Dataset Loader
+loader:
+  ## loader cpu
+  nworkers: 8
+
+# Network settings
+model:
+  ## model name: [pointnet2asis]
+  name: dgcnn
+  k: 20
+  emb_dims: 1024
+  dropout_p: 0.5
+
+# Optimizer settings
+optimizer:
+  # SGD
+  ## momentum
+  momentum: 0.9
+  lr: 0.001
+
+# Scheduler
+scheduler: null
+  # for iterations
+  # t_max: 250 # scheduler.t_max = general.epochs
+  # eta_min: 0.001
+
+# Loss function setting
+criterion: null
+  # name: 
+
