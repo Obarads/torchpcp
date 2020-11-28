@@ -21,8 +21,7 @@ class ModelNet40Path2Object(Dataset):
         pointcloud = self.data[item][:self.num_points]
         label = self.label[item]
         if self.split == 'train':
-            pointcloud = translate_pointcloud(pointcloud)
-            np.random.shuffle(pointcloud)
+            np.random.shuffle(pointcloud) # order shuffle
         return pointcloud, label
 
     def __len__(self):
@@ -34,12 +33,4 @@ class ModelNet40(dict):
         for key in split:
             path_list = modelnet40_ply_hdf5_2048.get_paths(dataset_root, key)
             self[key] = ModelNet40Path2Object(path_list, num_points, split)
-
-def translate_pointcloud(pointcloud):
-    xyz1 = np.random.uniform(low=2./3., high=3./2., size=[3])
-    xyz2 = np.random.uniform(low=-0.2, high=0.2, size=[3])
-       
-    translated_pointcloud = np.add(np.multiply(pointcloud, xyz1), xyz2).astype('float32')
-    return translated_pointcloud
-
 

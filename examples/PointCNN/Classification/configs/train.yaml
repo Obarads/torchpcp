@@ -1,8 +1,8 @@
 # General
 general:
   ## batch size
-  batch_size: 32
-  ## epochs
+  batch_size: 16
+  ## epochs (author impl.: 1024)
   epochs: 250
   ## start epoch
   start_epoch: 0
@@ -35,23 +35,19 @@ loader:
 # Network settings
 model:
   ## model name: [pointnet2asis]
-  name: dgcnn
-  k: 20
-  emb_dims: 1024
-  dropout_p: 0.5
+  name: pointcnn
+  use_x_transform: True
 
 # Optimizer settings
 optimizer:
-  # SGD
-  ## momentum
-  momentum: 0.9
-  lr: 0.001
+  # Adam
+  lr: 0.01
+  eps: 0.02
 
 # Scheduler
-scheduler: null
-  # for iterations
-  # t_max: 250 # scheduler.t_max = general.epochs
-  # eta_min: 0.001
+scheduler:
+  decay_rate: 0.5
+  decay_step: 8000
 
 # Loss function setting
 criterion: null

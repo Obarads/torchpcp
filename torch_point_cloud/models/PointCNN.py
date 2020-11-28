@@ -7,45 +7,72 @@ from torch_point_cloud.modules.XConv import XConv
 from torch_point_cloud.modules.Layer import LinearModule
 from torch_point_cloud.modules.functional import sampling
 
+class Linear(nn.Module):
+    def __init__(self, in_channel, out_channel, act=nn.ReLU(), with_bn=True):
+        super().__init__()
+        self.layer = nn.Linear(in_channel, out_channel)
+        self.bn = nn.BatchNorm1d(out_channel)
+        self.act = act
+        self.with_bn = with_bn
+
+    def forward(self, x):
+        x = x.permute(0, 2, 1).contiguous()
+        x = self.layer(x)
+        x = x.permute(0, 2, 1).contiguous()
+        if self.with_bn:
+            x = self.bn(x)
+        if self.act is not None:
+            x = self.act(x)
+        return x
+
 class PointCNNClassification(nn.Module):
     def __init__(self, point_feature_size, out_channel, use_x_transform=True):
         super().__init__()
 
         self.xconv1 = XConv(
-            in_channel=3, 
-            out_channel=48, 
+            coord2feature_channel=48//2, # C//2
+            point_feature_size=point_feature_size, # fts channels
+            out_channel=48, # C
             k=8, 
             dilation=1, 
             depth_multiplier=4
         )
         self.xconv2 = XConv(
-            in_channel=48,
-            out_channel=96,
+            coord2feature_channel=48//4, # previous_C//4
+            point_feature_size=48, # fts channels (previous_C)
+            out_channel=96, # C
             k=12,
             dilation=2,
             depth_multiplier=2
         )
         self.xconv3 = XConv(
-            in_channel=96,
-            out_channel=192,
+            coord2feature_channel=96//4, # previous_C//4
+            point_feature_size=96, # fts channels (previous_C)
+            out_channel=192, # C
             k=16,
             dilation=2,
             depth_multiplier=2
         )
         self.xconv4 = XConv(
-            in_channel=192,
-            out_channel=384,
+            coord2feature_channel=192//4, # previous_C//4
+            point_feature_size=192, # fts channels (previous_C)
+            out_channel=384, # C
             k=16,
             dilation=3,
             depth_multiplier=2
         )
 
-        self.fc =  nn.Sequential(
-            LinearModule(384, 384),
-            LinearModule(384, 192),
-            nn.Dropout(0.2),
-            nn.Linear(192, out_channel)
-        )
+        # self.fc =  nn.Sequential(
+        #     Linear(384, 384),
+        #     Linear(384, 192),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(192, out_channel)
+        # )
+
+        self.fc1 = Linear(384, 384)
+        self.fc2 = Linear(384, 192)
+        self.dropout = nn.Dropout(0.2)
+        self.fc3 = Linear(192, out_channel, act=None, with_bn=False)
 
         self.point_feature_size = point_feature_size
 
@@ -78,13 +105,23 @@ class PointCNNClassification(nn.Module):
         # XConv
         features = self.xconv4(center_coords_4, center_coords_3, features)
 
-        res = self.fc(features)
+        # res = self.fc(features)
+
+        features = self.fc1(features)
+        features = self.fc2(features)
+        features = self.dropout(features)
+        
+        res = self.fc3(features)
+
+        res = torch.mean(features, dim=1)
 
         return res
 
     def subsampling(self, coords, num_samples):
-        N = coords.shape[2]
+        B, C, N = coords.shape
         sampled_point_indices = sampling.random_sampling(N, num_samples)
+        sampled_point_indices = torch.tensor(sampled_point_indices, device=coords.device).view(1, num_samples).contiguous()
+        sampled_point_indices = sampled_point_indices.repeat(B, 1).contiguous()
         center_coords = sampling.index2points(coords, sampled_point_indices)
         return center_coords
 

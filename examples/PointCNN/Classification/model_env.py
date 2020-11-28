@@ -3,16 +3,14 @@ import omegaconf
 import torch
 from torch import optim
 from torch import nn
-from torch.optim import lr_scheduler
+# from torch.optim import lr_scheduler
+from torch_point_cloud.schedulers.tf_scheduler import ExponentialDecay
 
 # dataset
-from torch_point_cloud.datasets.DGCNN import ModelNet
+from torch_point_cloud.datasets.PointCNN import ModelNet
 
 # model
-from torch_point_cloud.models.DGCNN import DGCNNClassification
-
-# loss
-from torch_point_cloud.losses.LabelSmoothingLoss import LabelSmoothingLoss
+from torch_point_cloud.models.PointCNN import PointCNNClassification
 
 def get_dataset(cfg):
     if cfg.dataset.name == "modelnet40":
@@ -27,12 +25,11 @@ def get_dataset(cfg):
 def get_model(cfg):
     dataset_name = cfg.dataset.name
     num_classes = cfg.dataset[dataset_name].num_classes
-    if cfg.model.name == "dgcnn":
-        model = DGCNNClassification(
-            num_classes, 
-            cfg.model.k, 
-            cfg.model.emb_dims, 
-            cfg.model.dropout_p
+    if cfg.model.name == "pointcnn":
+        model = PointCNNClassification(
+            point_feature_size=0,
+            out_channel=num_classes,
+            use_x_transform=cfg.model.use_x_transform
         )
     else:
         raise NotImplementedError('Unknown model: ' + cfg.model.name)
@@ -40,33 +37,31 @@ def get_model(cfg):
     return model
 
 def get_optimizer(cfg, model):
-    # optimizer = optim.Adam(
-    #     model.parameters(), 
-    #     lr=cfg.optimizer.lr,
-    #     weight_decay=1e-4
-    # )
-    optimizer = optim.SGD(
+    optimizer = optim.Adam(
         model.parameters(), 
-        lr=cfg.optimizer.lr*100, 
-        momentum=cfg.optimizer.momentum, 
-        weight_decay=1e-4
+        lr=cfg.optimizer.lr,
+        eps=cfg.optimizer.eps
     )
 
     return optimizer
 
 def get_scheduler(cfg, optimizer):
-    scheduler = lr_scheduler.CosineAnnealingLR(
+    # scheduler = lr_scheduler.CosineAnnealingLR(
+    #     optimizer,
+    #     T_max=cfg.general.epochs,
+    #     eta_min=cfg.optimizer.lr
+    # )
+    scheduler = ExponentialDecay(
         optimizer,
-        T_max=cfg.general.epochs,
-        eta_min=cfg.optimizer.lr
+        decay_rate=cfg.scheduler.decay_rate,
+        decay_step=cfg.scheduler.decay_step
     )
     return scheduler
 
 def get_losses(cfg):
     # get losses
     criterion = {}
-    # criterion["cross_entropy"] = nn.CrossEntropyLoss()
-    criterion["label_smoothing"] = LabelSmoothingLoss()
+    criterion["cross_entropy"] = nn.CrossEntropyLoss()
     return criterion
 
 def processing(model, criterion, data, meters, device, return_outputs=False):
@@ -81,10 +76,12 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     # model forward processing
     pred_cls_labels = model(point_clouds)
 
+    # B, C, N = pred_cls_labels.shape
+    # cls_labels = cls_labels.view(-1, 1).contiguous().repeat(1, N).contiguous()
+
     # compute losses with criterion
     loss = 0
-    # loss += criterion["cross_entropy"](pred_cls_labels, cls_labels)
-    loss += criterion["label_smoothing"](pred_cls_labels, cls_labels)
+    loss += criterion["cross_entropy"](pred_cls_labels, cls_labels)
 
     # save metrics
     batch_loss.update(loss.item())
@@ -109,19 +106,4 @@ def get_checkpoint(path):
     checkpoint = torch.load(path, map_location='cpu')
     checkpoint_cfg = omegaconf.OmegaConf.create(checkpoint["cfg"])
     return checkpoint, checkpoint_cfg
-
-def cluster(prediction, bandwidth):
-    ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-
-    #print ('Mean shift clustering, might take some time ...')
-    #tic = time.time()
-    ms.fit(prediction)
-    #print ('time for clustering', time.time() - tic)
-    labels = ms.labels_
-    cluster_centers = ms.cluster_centers_
-
-    num_clusters = cluster_centers.shape[0]
-
-    return num_clusters, labels, cluster_centers
-
 

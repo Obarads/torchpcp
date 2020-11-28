@@ -110,18 +110,3 @@ def get_checkpoint(path):
     checkpoint_cfg = omegaconf.OmegaConf.create(checkpoint["cfg"])
     return checkpoint, checkpoint_cfg
 
-def cluster(prediction, bandwidth):
-    ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-
-    #print ('Mean shift clustering, might take some time ...')
-    #tic = time.time()
-    ms.fit(prediction)
-    #print ('time for clustering', time.time() - tic)
-    labels = ms.labels_
-    cluster_centers = ms.cluster_centers_
-
-    num_clusters = cluster_centers.shape[0]
-
-    return num_clusters, labels, cluster_centers
-
-

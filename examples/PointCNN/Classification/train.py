@@ -105,6 +105,7 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
 
         loss.backward()
         optimizer.step()
+        scheduler.step(data[0].shape[0]) # for TF ExponentialDecay
 
         # nan
         if torch.isnan(loss):
@@ -117,14 +118,6 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     # get epoch loss and acc
     train_loss = batch_loss.compute()
     train_acc = acc_meter.compute()
-    # print(
-    #     '-> Train loss: {}  mAcc: {} iou: {} oAcc: {}'.format(
-    #         train_loss, 
-    #         train_acc["class"],
-    #         train_acc["iou"],
-    #         train_acc["overall"]
-    #     )
-    # )
 
     # save loss and acc to tensorboard
     lr = scheduler.get_last_lr()[0]

@@ -193,7 +193,7 @@ def localize(center_points, points):
     points: [B, C, N, k]
     """
     B, C, N, k = points.shape
-    center_points = center_points.view(B, C, N, 1).repeat(1, 1, 1, k)
+    center_points = center_points.view(B, C, N, 1).repeat(1, 1, 1, k).contiguous()
     local_points = points - center_points
     return local_points
 
@@ -213,7 +213,6 @@ def random_sampling(num_points, num_samples):
     sampled_points_indices
         subsampled point indices
     """
-
-    sampled_points_indices = random.sample(list(range(num_points)), num_samples)
+    sampled_points_indices = np.random.choice(num_points, num_samples, replace=False)
     return sampled_points_indices
 
