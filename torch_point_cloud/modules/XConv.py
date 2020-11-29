@@ -5,21 +5,21 @@ from torch_point_cloud.modules.Layer import PointwiseConv2D, DepthwiseSeparableC
 from torch_point_cloud.modules.functional import sampling
 from torch_point_cloud.modules.XTransformation import XTransform
 
-class Linear(nn.Module):
-    def __init__(self, in_channel, out_channel, act=nn.ReLU()):
-        super().__init__()
-        self.layer = nn.Linear(in_channel, out_channel)
-        self.bn = nn.BatchNorm2d(out_channel)
-        self.act = act
+# class Linear(nn.Module):
+#     def __init__(self, in_channel, out_channel, act=nn.ReLU()):
+#         super().__init__()
+#         self.layer = nn.Linear(in_channel, out_channel)
+#         self.bn = nn.BatchNorm2d(out_channel)
+#         self.act = act
 
-    def forward(self, x):
-        x = x.permute(0, 2, 3, 1).contiguous()
-        x = self.layer(x)
-        x = x.permute(0, 3, 1, 2).contiguous()
-        x = self.bn(x)
-        if self.act is not None:
-            x = self.act(x)
-        return x
+#     def forward(self, x):
+#         x = x.permute(0, 2, 3, 1).contiguous()
+#         x = self.layer(x)
+#         x = x.permute(0, 3, 1, 2).contiguous()
+#         x = self.bn(x)
+#         if self.act is not None:
+#             x = self.act(x)
+#         return x
 
 class XConv(nn.Module):
     def __init__(
@@ -88,10 +88,7 @@ class XConv(nn.Module):
 
         if self.use_x_transformation:
             trans = self.x_trans(feature_a)
-            trans = trans.permute(0, 2, 3, 1).contiguous()
-            feature_a = feature_a.permute(0, 2, 3, 1).contiguous()
-            fx = torch.matmul(trans, feature_a).contiguous()
-            fx = fx.permute(0, 3, 1, 2).contiguous()
+            fx = self.transform(feature_a, trans)
         else:
             fx = feature_a
 
@@ -106,5 +103,22 @@ class XConv(nn.Module):
         
         return res
 
+    def transform(self, x, trans):
+        """
+        Parameters
+        ----------
+        x: [B, C, N, k]
+            features
+        trans: [B, N, k, k]
+            trans
 
+        Returns
+        -------
+        transformed_x: [B, C, N, k]
+            transformed_x
+        """
+        x = x.permute(0, 2, 3, 1).contiguous()
+        transformed_x = torch.matmul(trans, x).contiguous()
+        transformed_x = transformed_x.permute(0, 3, 1, 2).contiguous()
+        return transformed_x
 

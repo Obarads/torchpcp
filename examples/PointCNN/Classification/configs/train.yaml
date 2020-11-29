@@ -36,7 +36,7 @@ loader:
 model:
   ## model name: [pointnet2asis]
   name: pointcnn
-  use_x_transform: True
+  use_x_transform: False
 
 # Optimizer settings
 optimizer:

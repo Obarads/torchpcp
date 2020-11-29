@@ -126,6 +126,8 @@ class PointCNNClassification(nn.Module):
 
         res = self.convs(features)
 
+        # res = torch.mean(features, dim=1)
+
         return res
 
     def subsampling(self, coords, num_samples):
