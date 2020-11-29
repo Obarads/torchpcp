@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 from torch_point_cloud.modules.XConv import XConv
-from torch_point_cloud.modules.Layer import LinearModule
+from torch_point_cloud.modules.Layer import LinearModule, PointwiseConv2D, PointwiseConv1D
 from torch_point_cloud.modules.functional import sampling
 
 class Linear(nn.Module):
@@ -35,7 +35,8 @@ class PointCNNClassification(nn.Module):
             out_channel=48, # C
             k=8, 
             dilation=1, 
-            depth_multiplier=4
+            depth_multiplier=4,
+            use_x_transformation=use_x_transform
         )
         self.xconv2 = XConv(
             coord2feature_channel=48//4, # previous_C//4
@@ -43,7 +44,8 @@ class PointCNNClassification(nn.Module):
             out_channel=96, # C
             k=12,
             dilation=2,
-            depth_multiplier=2
+            depth_multiplier=2,
+            use_x_transformation=use_x_transform
         )
         self.xconv3 = XConv(
             coord2feature_channel=96//4, # previous_C//4
@@ -51,7 +53,8 @@ class PointCNNClassification(nn.Module):
             out_channel=192, # C
             k=16,
             dilation=2,
-            depth_multiplier=2
+            depth_multiplier=2,
+            use_x_transformation=use_x_transform
         )
         self.xconv4 = XConv(
             coord2feature_channel=192//4, # previous_C//4
@@ -59,7 +62,8 @@ class PointCNNClassification(nn.Module):
             out_channel=384, # C
             k=16,
             dilation=3,
-            depth_multiplier=2
+            depth_multiplier=2,
+            use_x_transformation=use_x_transform
         )
 
         # self.fc =  nn.Sequential(
@@ -69,10 +73,18 @@ class PointCNNClassification(nn.Module):
         #     nn.Linear(192, out_channel)
         # )
 
-        self.fc1 = Linear(384, 384)
-        self.fc2 = Linear(384, 192)
-        self.dropout = nn.Dropout(0.2)
-        self.fc3 = Linear(192, out_channel, act=None, with_bn=False)
+        # output warning (last channel warning)
+        # self.fc1 = Linear(384, 384)
+        # self.fc2 = Linear(384, 192)
+        # self.dropout = nn.Dropout(0.2)
+        # self.fc3 = Linear(192, out_channel, act=None, with_bn=False)
+
+        self.convs = nn.Sequential(
+            PointwiseConv1D(384, 384),
+            PointwiseConv1D(384, 192),
+            nn.Dropout(p=0.2),
+            nn.Conv1d(192, out_channel, 1)
+        )
 
         self.point_feature_size = point_feature_size
 
@@ -107,13 +119,12 @@ class PointCNNClassification(nn.Module):
 
         # res = self.fc(features)
 
-        features = self.fc1(features)
-        features = self.fc2(features)
-        features = self.dropout(features)
-        
-        res = self.fc3(features)
+        # features = self.fc1(features)
+        # features = self.fc2(features)
+        # features = self.dropout(features)
+        # res = self.fc3(features)
 
-        res = torch.mean(features, dim=1)
+        res = self.convs(features)
 
         return res
 

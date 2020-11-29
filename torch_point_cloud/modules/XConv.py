@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.Layer import Conv2DModule, DepthwiseSeparableConv2D, LinearModule
+from torch_point_cloud.modules.Layer import PointwiseConv2D, DepthwiseSeparableConv2D, LinearModule
 from torch_point_cloud.modules.functional import sampling
 from torch_point_cloud.modules.XTransformation import XTransform
 
@@ -30,15 +30,19 @@ class XConv(nn.Module):
         k,# K
         dilation, # dilation rate, D
         depth_multiplier,
-        with_global = False,
+        with_global=False,
         use_x_transformation=True, 
         memory_saving=False
     ):
         super().__init__()
 
+        # self.mlp_d = nn.Sequential(
+        #     Linear(3, coord2feature_channel),
+        #     Linear(coord2feature_channel, coord2feature_channel)
+        # )
         self.mlp_d = nn.Sequential(
-            Linear(3, coord2feature_channel),
-            Linear(coord2feature_channel, coord2feature_channel)
+            PointwiseConv2D(3, coord2feature_channel),
+            PointwiseConv2D(coord2feature_channel, coord2feature_channel)
         )
 
         if use_x_transformation:

@@ -47,7 +47,7 @@ optimizer:
 # Scheduler
 scheduler:
   decay_rate: 0.5
-  decay_step: 8000
+  decay_step: 200000
 
 # Loss function setting
 criterion: null

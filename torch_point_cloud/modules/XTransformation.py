@@ -4,13 +4,7 @@ from torch import nn
 from torch_point_cloud.modules.Layer import Conv2DModule
 from torch_point_cloud.modules.functional import sampling
 
-from torch_point_cloud.modules.Layer import PointwiseConv2D, DepthwiseConv2D, Layers
-
-class Conv2D(Layers):
-    def __init__(self, in_channel, out_channel, kernel_size, act=nn.ReLU(inplace=True)):
-        conv = nn.Conv2d(in_channel, out_channel, kernel_size)
-        norm = nn.BatchNorm2d(out_channel)
-        super().__init__(conv, norm, act)
+from torch_point_cloud.modules.Layer import DepthwiseConv2D, Conv2D
 
 class XTransform(nn.Module):
     def __init__(self, in_channel, k):
@@ -25,7 +19,7 @@ class XTransform(nn.Module):
         """
         x: [B, C, N, k]
         """
-        B, C, N, k = x.shape
+        # B, C, N, k = x.shape
         x = self.conv1(x)
         x = self.convert(x)
         x = self.conv2(x)
@@ -36,6 +30,7 @@ class XTransform(nn.Module):
         return trans
 
     # bad impl.
+    # output warning 
     def convert(self, x):
         """
         Parameters

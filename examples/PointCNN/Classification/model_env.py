@@ -76,8 +76,8 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     # model forward processing
     pred_cls_labels = model(point_clouds)
 
-    # B, C, N = pred_cls_labels.shape
-    # cls_labels = cls_labels.view(-1, 1).contiguous().repeat(1, N).contiguous()
+    B, C, N = pred_cls_labels.shape
+    cls_labels = cls_labels.view(-1, 1).contiguous().repeat(1, N).contiguous()
 
     # compute losses with criterion
     loss = 0

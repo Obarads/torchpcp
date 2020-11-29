@@ -41,6 +41,26 @@ class LinearModule(Layers):
         norm = nn.BatchNorm1d(out_features, **bn_args)
         super().__init__(layer, norm, act)
 
+
+class Conv1D(Layers):
+    def __init__(self, in_channel, out_channel, kernel_size, act=nn.ReLU(inplace=True)):
+        conv = nn.Conv1d(in_channel, out_channel, kernel_size)
+        norm = nn.BatchNorm1d(out_channel)
+        super().__init__(conv, norm, act)
+
+class PointwiseConv1D(Layers):
+    def __init__(self, in_channel, out_channel, act=nn.ReLU(inplace=True),
+                 conv_args={}, bn_args={}):
+        conv = nn.Conv1d(in_channel, out_channel, 1, **conv_args)
+        norm = nn.BatchNorm1d(out_channel, **bn_args)
+        super().__init__(conv, norm, act)
+
+class Conv2D(Layers):
+    def __init__(self, in_channel, out_channel, kernel_size, act=nn.ReLU(inplace=True)):
+        conv = nn.Conv2d(in_channel, out_channel, kernel_size)
+        norm = nn.BatchNorm2d(out_channel)
+        super().__init__(conv, norm, act)
+
 class PointwiseConv2D(Layers):
     def __init__(self, in_channel, out_channel, act=nn.ReLU(inplace=True),
                  conv_args={}, bn_args={}):
