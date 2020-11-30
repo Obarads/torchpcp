@@ -5,44 +5,24 @@ from torch_point_cloud.modules.Layer import PointwiseConv2D, DepthwiseSeparableC
 from torch_point_cloud.modules.functional import sampling
 from torch_point_cloud.modules.XTransformation import XTransform
 
-# class Linear(nn.Module):
-#     def __init__(self, in_channel, out_channel, act=nn.ReLU()):
-#         super().__init__()
-#         self.layer = nn.Linear(in_channel, out_channel)
-#         self.bn = nn.BatchNorm2d(out_channel)
-#         self.act = act
-
-#     def forward(self, x):
-#         x = x.permute(0, 2, 3, 1).contiguous()
-#         x = self.layer(x)
-#         x = x.permute(0, 3, 1, 2).contiguous()
-#         x = self.bn(x)
-#         if self.act is not None:
-#             x = self.act(x)
-#         return x
-
 class XConv(nn.Module):
     def __init__(
         self, 
         coord2feature_channel, # C_pts_fts
         point_feature_size, # features other than xyz
         out_channel, # C
-        k,# K
+        k,# k of kNN
         dilation, # dilation rate, D
-        depth_multiplier,
+        depth_multiplier, # for DepthwiseSeparableConv2D
         with_global=False,
-        use_x_transformation=True, 
-        memory_saving=False
+        use_x_transformation=True, # X trans
+        memory_saving=False # memory usage for kNN
     ):
         super().__init__()
 
-        # self.mlp_d = nn.Sequential(
-        #     Linear(3, coord2feature_channel),
-        #     Linear(coord2feature_channel, coord2feature_channel)
-        # )
         self.mlp_d = nn.Sequential(
-            PointwiseConv2D(3, coord2feature_channel),
-            PointwiseConv2D(coord2feature_channel, coord2feature_channel)
+            PointwiseConv2D(3, coord2feature_channel), # Linear(3, coord2feature_channel)
+            PointwiseConv2D(coord2feature_channel, coord2feature_channel) # Linear(coord2feature_channel, coord2feature_channel)
         )
 
         if use_x_transformation:

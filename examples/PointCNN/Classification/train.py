@@ -41,7 +41,7 @@ def main(cfg:omegaconf.DictConfig):
     dataset = get_dataset(cfg)
     criterion = get_losses(cfg)
     optimizer = get_optimizer(cfg, model)
-    scheduler = get_scheduler(cfg, optimizer)
+    scheduler = get_scheduler(cfg, optimizer) # no usage
 
     # get a logger
     writer = SummaryWriter("./")
@@ -105,7 +105,7 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
 
         loss.backward()
         optimizer.step()
-        scheduler.step(data[0].shape[0]) # for TF ExponentialDecay
+        # scheduler.step(data[0].shape[0]) # for TF ExponentialDecay
 
         # nan
         if torch.isnan(loss):
@@ -113,7 +113,7 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
             exit()
 
     # update lr step
-    scheduler.step()
+    # scheduler.step()
 
     # get epoch loss and acc
     train_loss = batch_loss.compute()

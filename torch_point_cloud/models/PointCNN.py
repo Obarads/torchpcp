@@ -4,28 +4,23 @@ import torch
 from torch import nn
 
 from torch_point_cloud.modules.XConv import XConv
-from torch_point_cloud.modules.Layer import LinearModule, PointwiseConv2D, PointwiseConv1D
+from torch_point_cloud.modules.Layer import PointwiseConv1D
 from torch_point_cloud.modules.functional import sampling
 
-# class Linear(nn.Module):
-#     def __init__(self, in_channel, out_channel, act=nn.ReLU(), with_bn=True):
-#         super().__init__()
-#         self.layer = nn.Linear(in_channel, out_channel)
-#         self.bn = nn.BatchNorm1d(out_channel)
-#         self.act = act
-#         self.with_bn = with_bn
-
-#     def forward(self, x):
-#         x = x.permute(0, 2, 1).contiguous()
-#         x = self.layer(x)
-#         x = x.permute(0, 2, 1).contiguous()
-#         if self.with_bn:
-#             x = self.bn(x)
-#         if self.act is not None:
-#             x = self.act(x)
-#         return x
-
 class PointCNNClassification(nn.Module):
+    """
+    PointCNN (Classification)
+    url: https://arxiv.org/abs/1801.07791
+
+    Parameters
+    ----------
+    point_feature_size : int
+        Point features other than coordinates
+    out_channel : int
+        Output channel size (other words, number of classes)
+    use_x_transform : bool
+        Select use of X transform.
+    """
     def __init__(self, point_feature_size, out_channel, use_x_transform=True):
         super().__init__()
 
@@ -66,19 +61,6 @@ class PointCNNClassification(nn.Module):
             use_x_transformation=use_x_transform
         )
 
-        # self.fc =  nn.Sequential(
-        #     Linear(384, 384),
-        #     Linear(384, 192),
-        #     nn.Dropout(0.2),
-        #     nn.Linear(192, out_channel)
-        # )
-
-        # output warning (last channel warning)
-        # self.fc1 = Linear(384, 384)
-        # self.fc2 = Linear(384, 192)
-        # self.dropout = nn.Dropout(0.2)
-        # self.fc3 = Linear(192, out_channel, act=None, with_bn=False)
-
         self.convs = nn.Sequential(
             PointwiseConv1D(384, 384),
             PointwiseConv1D(384, 192),
@@ -89,6 +71,16 @@ class PointCNNClassification(nn.Module):
         self.point_feature_size = point_feature_size
 
     def forward(self, inputs):
+        """
+        Parameter
+        ----------
+        inputs : [B, coods + point_features, N]
+
+        Return
+        ------
+        res : [B, output_channel, 128]
+            128 is number of sampled points.
+        """
         # B, C, N = inputs.shape
         if self.point_feature_size > 0:
             coords = inputs[:, :3] # xyz coords
@@ -117,16 +109,7 @@ class PointCNNClassification(nn.Module):
         # XConv
         features = self.xconv4(center_coords_4, center_coords_3, features)
 
-        # res = self.fc(features)
-
-        # features = self.fc1(features)
-        # features = self.fc2(features)
-        # features = self.dropout(features)
-        # res = self.fc3(features)
-
         res = self.convs(features)
-
-        # res = torch.mean(features, dim=1)
 
         return res
 
