@@ -45,7 +45,7 @@ optimizer:
   eps: 0.02
 
 # Scheduler
-scheduler:
+scheduler: # no usage
   decay_rate: 0.5
   decay_step: 200000
 

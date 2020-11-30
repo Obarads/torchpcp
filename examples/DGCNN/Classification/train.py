@@ -115,25 +115,17 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     scheduler.step()
 
     # get epoch loss and acc
-    train_loss = batch_loss.compute()
-    train_acc = acc_meter.compute()
-    # print(
-    #     '-> Train loss: {}  mAcc: {} iou: {} oAcc: {}'.format(
-    #         train_loss, 
-    #         train_acc["class"],
-    #         train_acc["iou"],
-    #         train_acc["overall"]
-    #     )
-    # )
+    epoch_loss = batch_loss.compute()
+    epoch_acc = acc_meter.compute()
 
     # save loss and acc to tensorboard
     lr = scheduler.get_last_lr()[0]
     log_dict = {
         "lr": lr,
-        "train/loss": train_loss,
-        "train/mAcc": train_acc["class"],
-        "train/oAcc": train_acc["overall"],
-        "train/IoU": train_acc["iou"]
+        f"{publisher}/loss": epoch_loss,
+        f"{publisher}/mAcc": epoch_acc["class"],
+        f"{publisher}/oAcc": epoch_acc["overall"],
+        f"{publisher}/IoU": epoch_acc["iou"]
     }
 
     return log_dict
