@@ -10,6 +10,8 @@ import pandas as pd
 from sklearn.decomposition import PCA
 import torch
 
+
+
 def write_ply(filename, xyz, rgb=None):
     """
     write into a ply file
