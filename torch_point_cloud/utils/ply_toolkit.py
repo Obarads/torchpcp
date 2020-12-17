@@ -54,7 +54,7 @@ def write_pc_embedding(filename, xyz, embeddings):
     
     ply.write(filename)
 
-def write_pc_label(filename, xyz, labels, seed=0, color_map:list=None):
+def label_to_color(labels, seed=0, color_map:list=None):
     np.random.seed(seed)
     max_labels = np.max(labels)
     if color_map is None:
@@ -62,6 +62,10 @@ def write_pc_label(filename, xyz, labels, seed=0, color_map:list=None):
     else:
         label_color_list = color_map
     point_colors = np.array([ np.array([0,0,0]) if 0 > i else label_color_list[i] for i in labels])
+    return point_colors
+
+def write_pc_label(filename, xyz, labels, seed=0, color_map:list=None):
+    point_colors = label_to_color(labels, seed=seed, color_map=color_map)
     write_pc(filename, xyz, point_colors)
 
 def check_label_colors(file_name, num_points, seed=0, margin=0.5):
