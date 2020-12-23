@@ -60,4 +60,26 @@ def create_markdown_table(f, table):
     for row in body:
         f.write("|"+"|".join([str(n) for n in row])+"|\n")
 
+def dict_to_table(_dict):
+    """
+    Examples
+    --------
+    {
+        "head":["PC","Mac","Windows","Ubuntu"],
+        "body":[
+            ["X1","x","o","o"],
+            ["Surface","x","o","o"],
+            ["MacBook Air","o","o","o"]
+        ]
+    }
+    """
+    dict_table = ""
+    head = _dict["head"]
+    dict_table += "|"+"|".join([str(n) for n in head])+"|\n"
+    dict_table += "|"+"".join(["-|" for i in range(len(head))])+"\n"
+    body = _dict["body"]
+    for row in body:
+        dict_table += "|"+"|".join([str(n) for n in row])+"|\n"
+
+    return dict_table
 
