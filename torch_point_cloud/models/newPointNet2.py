@@ -128,3 +128,96 @@ class PointNet2SSGSemanticSegmentation(nn.Module):
         return x
 
 
+NPOINTS = [4096, 1024, 256, 64]
+RADIUS = [[0.1, 0.5], [0.5, 1.0], [1.0, 2.0], [2.0, 4.0]]
+NSAMPLE = [[16, 32], [16, 32], [16, 32], [16, 32]]
+MLPS = [[[16, 16, 32], [32, 32, 64]], [[64, 64, 128], [64, 96, 128]],
+        [[128, 196, 256], [128, 196, 256]], [[256, 256, 512], [256, 384, 512]]]
+FP_MLPS = [[512, 512], [512, 512], [256, 256], [128, 128]]
+CLS_FC = [128]
+DP_RATIO = 0.5
+
+class PointNet2MSGSemanticSegmentation(nn.Module):
+    """
+    Parameters
+    ----------
+    point_feature_size:int
+        feature size other than xyz
+    """
+    def __init__(self, point_feature_size, num_points=NPOINTS, radius=RADIUS, 
+                 num_sample=NSAMPLE, mlps=MLPS, fp_mls=FP_MLPS, cls_fc=CLS_FC, 
+                 dp_ratio=DP_RATIO):
+        super().__init__()
+        
+        self.sa_msg_modules = nn.ModuleList()
+        prev_feature_size = point_feature_size
+        sa_output_feature_size = []
+        for i in range(len(num_points)):
+            self.sa_msg_modules.append(
+                PointNetSetAbstractionMSG(
+                    num_points[i],
+                    radius[i],
+                    num_sample[i],
+                    prev_feature_size,
+                    mlps[i]
+                )
+            )
+            prev_feature_size = 0
+            for feature_size in mlps[i]: prev_feature_size += feature_size[-1]
+            sa_output_feature_size.append(prev_feature_size)
+
+        # for fp module
+        sa_output_feature_size = list(reversed(sa_output_feature_size))
+
+        self.fp_modules = nn.ModuleList()
+        prev_feature_size = sa_output_feature_size[0]
+        for i in range(len(fp_mls)):
+            input_feature_size = prev_feature_size
+            if len(sa_output_feature_size) > i+1:
+                input_feature_size += sa_output_feature_size[i+1]
+            self.fp_modules.append(
+                PointNetFeaturePropagation(
+                    input_feature_size,
+                    fp_mls[i]
+                )
+            )
+            prev_feature_size = fp_mls[i][-1]
+
+        self.cls_fc = nn.ModuleList()
+        prev_feature_size = fp_mls[-1][-1]
+        for i in range(len(cls_fc)):
+            self.cls_fc.append(PointwiseConv1D(prev_feature_size, cls_fc[i]))
+            prev_feature_size = cls_fc[i]
+        # Not implemetation : dp_ratio
+
+    def forward(self, xyz, features):
+        sa_features_list = []
+        sa_xyz_list = []
+
+        sa_features_list.append(features)
+        sa_xyz_list.append(xyz)
+        for sa_msg in self.sa_msg_modules:
+            sa_xyz, sa_features = sa_msg(sa_xyz_list[-1], sa_features_list[-1])
+            sa_xyz_list.append(sa_xyz)
+            sa_features_list.append(sa_features)
+
+        # for fp module
+        sa_xyz_list = list(reversed(sa_xyz_list))
+        sa_features_list = list(reversed(sa_features_list))
+
+        prev_features = sa_features_list[0]
+        for i, fp in enumerate(self.fp_modules):
+            # don't concat intensity data
+            if len(sa_features_list)-1 > i+1:
+                sa_features = sa_features_list[i+1]
+            else:
+                sa_features = None
+            prev_features = fp(sa_xyz_list[i+1], sa_xyz_list[i], 
+                               sa_features, prev_features)
+
+        outpus = prev_features
+        for fc in self.cls_fc:
+            outpus = fc(outpus)
+
+        return outpus
+

@@ -5,3 +5,5 @@
 # # from modules.functional.loss import kl_loss, huber_loss
 # from torch_point_cloud.modules.functional.sampling import gather, furthest_point_sample, logits_mask
 # # from modules.functional.voxelization import avg_voxelize
+
+from .sampling import *

@@ -47,4 +47,4 @@ def read(file_path:str):
 
         return point_cloud, file_format_str
 
-# def write(file_path:str, )
+def write(file_path:str, )

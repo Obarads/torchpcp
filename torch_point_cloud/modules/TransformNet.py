@@ -18,7 +18,7 @@ class LinearModule(Layers):
         layer = nn.Linear(in_features, out_features)
         nn.init.xavier_uniform_(layer.weight)
         norm = nn.BatchNorm1d(out_features)
-        super(Linear, self).__init__(layer, norm, act)
+        super().__init__(layer, norm, act)
 
 class InputTransformNet(nn.Module):
     """

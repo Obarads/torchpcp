@@ -1,24 +1,33 @@
-# torch_point_cloud
-## About
-- This repository is for managing the point cloud processing implementation with PyTorch.
-- Test results of models are shown on README.md (ex: [examples/PointNet/README.md](examples/PointNet/README.md)) in the model folder.
-  - Please look at a list in ["Evaluated model" section](#evaluated-model) when checking evaluated models.
-- Example codes work, even if you don't install torch_point_cloud package using [setup.py](setup.py).
-- Docstring guide of this repo follows [numpy](https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard).
+# PyTorch Point Cloud
 
-## Environment
+[![python](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/)
+[![backend](https://img.shields.io/badge/backend-CUDA-blue.svg)](README.md)
+[![license](https://img.shields.io/badge/license-MIT%202.0-g.svg)](LICENSE)
+
+## About
+PyTorch point cloud is a pytorch implementation collection of point cloud utils, models, and modules.
+
+## Component
+The Componets of this repository is as following.
+- `examples`: include scripts to train or test implemented models.
+  - Test results of models are shown on README.md (ex: [examples/PointNet/README.md](examples/PointNet/README.md)) in the model folder.
+    - Please look at a list in ["Evaluated model" section](#evaluated-model) when checking evaluated models.
+  - Example codes work, even if you don't install torch_point_cloud package using [setup.py](setup.py).
+- `torch_point_cloud`: include model, module, and utils.
+  - Docstring guide of this repo follows [numpy](https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard).
+
+## Dependencies
+- Python3 (3.7.7)
+- PyTorch (1.7.0)
+- Ninja (1.8.2)
+  - If you have not installed this software, Please show [here](https://www.claudiokuenzler.com/blog/756/install-newer-ninja-build-tools-ubuntu-14.04-trusty).
+- (optional) [Hydra](https://github.com/facebookresearch/hydra) (1.0 or later)
+- (optional) [tensorboardX](https://github.com/lanpa/tensorboardX) (2.1 or later)
+
+## Execution environment
+- CUDA: 10.2
 - OS: Ubuntu 18.04
 - GPU: RTX2080Ti x 1
-- CUDA: 10.2
-- Python
-  - Version: 3.7.7
-  - Packages
-    ```
-    pip install torch==1.6.0 torchvision=0.7.0
-    pip install plyfile==0.7.2
-    pip install tensorboardX
-    pip install hydra-core --upgrade
-    ```
 
 ## Evaluated model
 - The following models were trained and tested in my environment.

@@ -2,8 +2,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from torch_point_cloud.modules.Layer import Conv2DModule
-from torch_point_cloud.modules.functional.sampling import (
+from torch_point_cloud.modules.Layer import PointwiseConv2D
+from torch_point_cloud.modules.functional import (
     index2points,
     furthest_point_sample
 )
@@ -133,7 +133,7 @@ class PointNetSetAbstraction(nn.Module):
         layers = []
         in_channel = init_in_channel
         for out_channel in mlp:
-            layers.append(Conv2DModule(in_channel, out_channel))
+            layers.append(PointwiseConv2D(in_channel, out_channel))
             in_channel = out_channel
         self.mlp = nn.Sequential(*layers)
 
@@ -206,7 +206,7 @@ class PointNetSetAbstractionMSG(nn.Module):
             layers = []
             in_channel = init_in_channel + 3
             for out_channel in mlp:
-                layers.append(Conv2DModule(in_channel, out_channel))
+                layers.append(PointwiseConv2D(in_channel, out_channel))
                 in_channel = out_channel
             self.mlp_list.append(nn.Sequential(*layers))
 
@@ -223,14 +223,15 @@ class PointNetSetAbstractionMSG(nn.Module):
         new_points_list = []
         for i, radius in enumerate(self.radius_list):
             K = self.num_bq_points_list[i]
-            grouped_points = group_layer(xyz, new_xyz, K, radius)
+            grouped_points = group_layer(xyz, new_xyz, K, radius, points=points)
 
             # shape: [B, D, K, S]
-            grouped_points = grouped_points.permute(0, 3, 2, 1)
+            # grouped_points = grouped_points.permute(0, 3, 2, 1)
 
             # PointNet layer
             grouped_points = self.mlp_list[i](grouped_points)
-            new_points = torch.max(grouped_points, 2)[0]  # [B, D', S]
+            # new_points = torch.max(grouped_points, 2)[0]  # [B, D', S]
+            new_points = torch.max(grouped_points, 3)[0]  # [B, D', S, K] -> [B, D', S]
             new_points_list.append(new_points)
 
         # MSG Concat

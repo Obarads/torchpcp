@@ -7,7 +7,14 @@ from torch.autograd import Function
 
 from .torch_c.backend import _backend
 
-# __all__ = ['gather', 'furthest_point_sample', 'logits_mask']
+__all__ = [
+    'furthest_point_sample', 
+    'index2points', 
+    'pairwise_distance',
+    'k_nearest_neighbors',
+    'localize',
+    'random_sampling'
+]
 
 # # https://github.com/mit-han-lab/pvcnn/blob/db13331a46f672e74e7b5bde60e7bf30d445cd2d/modules/functional/sampling.py#L10
 # class Gather(Function):
@@ -72,6 +79,7 @@ from .torch_c.backend import _backend
 #     return selected_coords, masked_coords_mean, mask
 
 # https://github.com/mit-han-lab/pvcnn/blob/db13331a46f672e74e7b5bde60e7bf30d445cd2d/modules/functional/sampling.py#L37
+
 def furthest_point_sample(coords, num_samples):
     """
     Uses iterative furthest point sampling.
@@ -156,9 +164,9 @@ def k_nearest_neighbors(xyz1, xyz2, k, memory_saving=False):
     Parameters
     ----------
     xyz1 : torch.tensor [B, C, N]
-        xyz tensor
+        xyz of center points
     xyz2 : torch.tensor [B, C, M]
-        xyz tensor
+        xyz of all points
     k : int
         number of nearest neighbors
     memory_saving : bool
