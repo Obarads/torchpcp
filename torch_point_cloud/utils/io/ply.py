@@ -2,7 +2,7 @@ import os, sys
 import numpy as np
 from plyfile import PlyData, PlyElement
 
-from torch_point_cloud.utils2 import converter
+from torch_point_cloud.utils import converter
 
 ##
 ## Write 
