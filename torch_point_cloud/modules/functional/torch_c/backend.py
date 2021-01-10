@@ -18,8 +18,10 @@ _backend = load(name='_torch_c',
                     'sampling/sampling.cu',
                     'voxelization/vox.cpp',
                     'voxelization/vox.cu',
+                    'knn/k_nearest_neighbors.cpp',
+                    'knn/k_nearest_neighbors.cu',
                     'bindings.cpp',
                 ]]
-                )
+            )
 
 __all__ = ['_backend']

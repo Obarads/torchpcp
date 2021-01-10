@@ -6,6 +6,7 @@
 #include "interpolate/trilinear_devox.hpp"
 #include "sampling/sampling.hpp"
 #include "voxelization/vox.hpp"
+#include "knn/k_nearest_neighbors.hpp"
 
 PYBIND11_MODULE(_torch_c, m) {
   m.def("gather_features_forward", &gather_features_forward,
@@ -34,4 +35,6 @@ PYBIND11_MODULE(_torch_c, m) {
         "Voxelization forward with average pooling (CUDA)");
   m.def("avg_voxelize_backward", &avg_voxelize_backward,
         "Voxelization backward (CUDA)");
+  m.def("k_nearest_neighbors", &k_nearest_neighbors_forward,
+        "K nearest neighbors forward (CUDA)");
 }

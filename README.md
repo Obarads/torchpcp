@@ -1,7 +1,6 @@
 # PyTorch Point Cloud
 
 [![python](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/)
-[![backend](https://img.shields.io/badge/backend-CUDA-blue.svg)](README.md)
 [![license](https://img.shields.io/badge/license-MIT%202.0-g.svg)](LICENSE)
 
 ## About
@@ -25,8 +24,7 @@ The Componets of this repository is as following.
 - (optional) [tensorboardX](https://github.com/lanpa/tensorboardX) (2.1 or later)
 
 ## Execution environment
-- CUDA: 10.2
-- OS: Ubuntu 18.04
+- Docker: nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
 - GPU: RTX2080Ti x 1
 
 ## Evaluated model

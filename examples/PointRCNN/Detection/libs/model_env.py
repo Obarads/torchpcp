@@ -146,8 +146,6 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
 
     ret_dict = model(input_data)
 
-    exit()
-
     # compute losses with criterion
     loss = 0
     loss = criterion(pred_cls_labels, feat_trans, cls_labels)

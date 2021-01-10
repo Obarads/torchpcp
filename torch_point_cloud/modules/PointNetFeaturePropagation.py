@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from torch_point_cloud.modules.Layer import PointwiseConv1D
-from torch_point_cloud.modules.functional.sampling import (
+from torch_point_cloud.modules.functional import (
     k_nearest_neighbors,
     index2points
 )

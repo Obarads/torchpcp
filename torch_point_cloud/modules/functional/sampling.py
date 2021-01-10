@@ -7,79 +7,6 @@ from torch.autograd import Function
 
 from .torch_c.backend import _backend
 
-__all__ = [
-    'furthest_point_sample', 
-    'index2points', 
-    'pairwise_distance',
-    'k_nearest_neighbors',
-    'localize',
-    'random_sampling'
-]
-
-# # https://github.com/mit-han-lab/pvcnn/blob/db13331a46f672e74e7b5bde60e7bf30d445cd2d/modules/functional/sampling.py#L10
-# class Gather(Function):
-#     @staticmethod
-#     def forward(ctx, features, indices):
-#         """
-#         Gather
-#         :param ctx:
-#         :param features: features of points, FloatTensor[B, C, N]
-#         :param indices: centers' indices in points, IntTensor[b, m]
-#         :return:
-#             centers_coords: coordinates of sampled centers, FloatTensor[B, C, M]
-#         """
-#         features = features.contiguous()
-#         indices = indices.int().contiguous()
-#         ctx.save_for_backward(indices)
-#         ctx.num_points = features.size(-1)
-#         return _backend.gather_features_forward(features, indices)
-
-#     @staticmethod
-#     def backward(ctx, grad_output):
-#         indices, = ctx.saved_tensors
-#         grad_features = _backend.gather_features_backward(grad_output.contiguous(), indices, ctx.num_points)
-#         return grad_features, None
-
-# gather = Gather.apply
-
-# # https://github.com/mit-han-lab/pvcnn/blob/db13331a46f672e74e7b5bde60e7bf30d445cd2d/modules/functional/sampling.py#L51
-# def logits_mask(coords, logits, num_points_per_object):
-#     """
-#     Use logits to sample points
-#     :param coords: coords of points, FloatTensor[B, 3, N]
-#     :param logits: binary classification logits, FloatTensor[B, 2, N]
-#     :param num_points_per_object: M, #points per object after masking, int
-#     :return:
-#         selected_coords: FloatTensor[B, 3, M]
-#         masked_coords_mean: mean coords of selected points, FloatTensor[B, 3]
-#         mask: mask to select points, BoolTensor[B, N]
-#     """
-#     batch_size, _, num_points = coords.shape
-#     mask = torch.lt(logits[:, 0, :], logits[:, 1, :])   # [B, N]
-#     num_candidates = torch.sum(mask, dim=-1, keepdim=True)  # [B, 1]
-#     masked_coords = coords * mask.view(batch_size, 1, num_points)  # [B, C, N]
-#     masked_coords_mean = torch.sum(masked_coords, dim=-1) / torch.max(num_candidates,
-#                                                                       torch.ones_like(num_candidates)).float()  # [B, C]
-#     selected_indices = torch.zeros((batch_size, num_points_per_object), device=coords.device, dtype=torch.int32)
-#     for i in range(batch_size):
-#         current_mask = mask[i]  # [N]
-#         current_candidates = current_mask.nonzero().view(-1)
-#         current_num_candidates = current_candidates.numel()
-#         if current_num_candidates >= num_points_per_object:
-#             choices = np.random.choice(current_num_candidates, num_points_per_object, replace=False)
-#             selected_indices[i] = current_candidates[choices]
-#         elif current_num_candidates > 0:
-#             choices = np.concatenate([
-#                 np.arange(current_num_candidates).repeat(num_points_per_object // current_num_candidates),
-#                 np.random.choice(current_num_candidates, num_points_per_object % current_num_candidates, replace=False)
-#             ])
-#             np.random.shuffle(choices)
-#             selected_indices[i] = current_candidates[choices]
-#     selected_coords = gather(masked_coords - masked_coords_mean.view(batch_size, -1, 1), selected_indices)
-#     return selected_coords, masked_coords_mean, mask
-
-# https://github.com/mit-han-lab/pvcnn/blob/db13331a46f672e74e7b5bde60e7bf30d445cd2d/modules/functional/sampling.py#L37
-
 def furthest_point_sample(coords, num_samples):
     """
     Uses iterative furthest point sampling.
@@ -156,8 +83,33 @@ def pairwise_distance(xyz1, xyz2):
     xyz_row = torch.sum(xyz1**2, dim=1, keepdim=True).transpose(2,1)
     return -xyz_column - inner - xyz_row
 
+def k_nearest_neighbors(center_coords, coords, k):
+    """
+    Compute k nearest neighbors between coords and center_coords.
+
+    Parameters
+    ----------
+    center_coords : torch.tensor [B, C, M]
+        xyz of center points
+    coords : torch.tensor [B, C, N]
+        xyz of all points
+    k : int
+        number of nearest neighbors
+
+    Return
+    ------
+    idxs: torch.tesnor [B, M, k]
+        top k idx between coords and center_coords
+    distance : torch.tesnor [B, M, k]
+        top k distances between coords and center_coords
+    """
+    coords = coords.contiguous()
+    center_coords = center_coords.contiguous()
+    idxs, dists = _backend.k_nearest_neighbors(coords, center_coords, k)
+    return idxs, dists
+
 # https://github.com/WangYueFt/dgcnn/blob/master/pytorch/model.py
-def k_nearest_neighbors(xyz1, xyz2, k, memory_saving=False):
+def py_k_nearest_neighbors(xyz1, xyz2, k, memory_saving=False):
     """
     Compute k nearest neighbors between xyz1 and xyz2.
 

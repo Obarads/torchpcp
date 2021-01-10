@@ -1,6 +1,7 @@
 import os
 import omegaconf
 import time
+from decimal import Decimal
 
 ###
 ### log service
@@ -163,7 +164,7 @@ class TimeWatcher:
 
 def timecheck(start=None, publisher="time"):
     if start is not None:
-        print("{}: {}s".format(publisher, time.time()-start))
+        print("{}: {}s".format(publisher, Decimal(time.time()-start)))
     return time.time()
 
 

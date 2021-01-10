@@ -6,7 +6,7 @@ from torch_point_cloud.modules.Layer import PointwiseConv1D, Linear
 
 from torch_point_cloud.modules.PointNetSetAbstraction import(
     PointNetSetAbstraction, PointNetSetAbstractionMSG)
-from torch_point_cloud.modules.PointNetFeaturePropagation import(
+from torch_point_cloud.modules.newfpmodule import(
     PointNetFeaturePropagation)
 
 class PointNet2SSGClassification(nn.Module):
