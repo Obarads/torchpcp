@@ -13,6 +13,8 @@ from torch_point_cloud.models.newPointNet2 import PointNet2MSGSemanticSegmentati
 from torch_point_cloud.modules.Layer import PointwiseConv1D
 from torch_point_cloud.modules.ProposalLayer import RPNProposalLayer
 
+from torch_point_cloud.configs.PointRCNN.config import cfg
+
 class RPN(nn.Module):
     def __init__(self, use_xyz=True, mode='TRAIN'):
         super().__init__()
@@ -60,10 +62,14 @@ class RPN(nn.Module):
         #     reg_layers.insert(1, nn.Dropout(cfg.RPN.DP_RATIO))
         # self.rpn_reg_layer = nn.Sequential(*reg_layers)
 
-        pre_loc_bin_num = int(1.5/0.5) * 2
-        # following 2 or 4
-        reg_channel = pre_loc_bin_num * 2 + 12 * 2 + 3
-        reg_channel += 1
+        # regression branch
+        per_loc_bin_num = int(cfg.RPN.LOC_SCOPE / cfg.RPN.LOC_BIN_SIZE) * 2
+        if cfg.RPN.LOC_XZ_FINE:
+            reg_channel = per_loc_bin_num * 4 + cfg.RPN.NUM_HEAD_BIN * 2 + 3
+        else:
+            reg_channel = per_loc_bin_num * 2 + cfg.RPN.NUM_HEAD_BIN * 2 + 3
+        reg_channel += 1  # reg y
+
         reg_branch = [
             PointwiseConv1D(128, 128),
             nn.Dropout(0.5),

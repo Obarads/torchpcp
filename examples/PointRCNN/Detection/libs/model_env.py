@@ -4,6 +4,7 @@ import logging
 import torch
 from torch import optim
 from torch import nn
+from torch.nn import functional as F
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 
@@ -15,6 +16,8 @@ from torch_point_cloud.models.PointRCNN import PointRCNN
 
 # configs
 from torch_point_cloud.configs.PointRCNN.config import cfg as ocfg
+
+from libs.losses import Criterion
 
 def create_logger(log_file):
     log_format = '%(asctime)s  %(levelname)5s  %(message)s'
@@ -58,6 +61,7 @@ def get_loader(cfg, dataset):
         pin_memory=True,
         shuffle=cfg.loader.shuffle,
         collate_fn=collate_fn,
+        drop_last=True
     )
 
 def get_model(cfg):
@@ -95,18 +99,8 @@ def get_losses(cfg):
     Get losses.
     """
     # get losses
-    criterion = Criterion(cfg)
+    criterion = Criterion()
     return criterion
-
-class Criterion(nn.Module):
-    def __init__(self, cfg):
-        super().__init__()
-        self.cross_entropy = nn.CrossEntropyLoss()
-
-    def forward(self, pred_cls_labels, feat_trans, cls_labels):
-        loss = 0
-        loss += self.cross_entropy(pred_cls_labels, cls_labels)
-        return loss
 
 def get_writer(cfg):
     """
@@ -137,9 +131,13 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     # numpy to torch tensor
     pts_input = torch.tensor(pts_input, dtype=torch.float32)
     gt_boxes3d = torch.tensor(gt_boxes3d, dtype=torch.float32)
+    rpn_cls_label = torch.tensor(rpn_cls_label, dtype=torch.float32)
+    rpn_reg_label = torch.tensor(rpn_reg_label, dtype=torch.float32)
     # change device
     pts_input = pts_input.to(device)
     gt_boxes3d = gt_boxes3d.to(device)
+    rpn_cls_label = rpn_cls_label.to(device)
+    rpn_reg_label = rpn_reg_label.to(device)
     # permute pts_input
     pts_input = pts_input.permute(0, 2, 1).contiguous()
     input_data = {'pts_input': pts_input, 'gt_boxes3d': gt_boxes3d}
@@ -147,17 +145,20 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     ret_dict = model(input_data)
 
     # compute losses with criterion
-    loss = 0
-    loss = criterion(pred_cls_labels, feat_trans, cls_labels)
+    rpn_cls = ret_dict["rpn_cls"]
+    rpn_reg = ret_dict["rpn_reg"]
+
+    tb_dict = {}
+    loss = criterion(rpn_cls, rpn_reg, rpn_cls_label, rpn_reg_label, tb_dict)
 
     # save metrics
     if meters is not None:
         acc_meter, batch_loss = meters
         batch_loss.update(loss.item())
-        acc_meter.update(pred_cls_labels, cls_labels)
+        # acc_meter.update(pred_cls_labels, cls_labels)
 
     if return_outputs:
-        return loss, pred_cls_labels
+        return loss, rpn_reg, rpn_reg
     else:
         return loss
 

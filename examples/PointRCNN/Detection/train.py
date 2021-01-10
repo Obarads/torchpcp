@@ -85,13 +85,13 @@ def train(cfg, model, loader, optimizer, criterion, scheduler, publisher="train"
     model.train()
 
     # metrics
-    # acc_meter = MultiAssessmentMeter(
-    #     num_classes=cfg.dataset.num_classes, 
-    #     metrics=["class","overall","iou"]
-    # )
-    # batch_loss = LossMeter()
-    # meters = (acc_meter, batch_loss)
-    meters = None
+    acc_meter = MultiAssessmentMeter(
+        # num_classes=cfg.dataset.num_classes, 
+        num_classes=20, # Flaky
+        metrics=["class","overall","iou"]
+    )
+    batch_loss = LossMeter()
+    meters = (acc_meter, batch_loss)
 
     for _, data in enumerate(loader):
         optimizer.zero_grad()
@@ -107,14 +107,14 @@ def train(cfg, model, loader, optimizer, criterion, scheduler, publisher="train"
     scheduler.step()
 
     # get epoch loss and accuracy
-    # epoch_loss = batch_loss.compute()
+    epoch_loss = batch_loss.compute()
     # epoch_acc = acc_meter.compute()
 
     # save loss and acc to tensorboard
     lr = scheduler.get_last_lr()[0]
     log_dict = {
         "lr": lr,
-    #     "{}/loss".format(publisher): epoch_loss,
+        "{}/loss".format(publisher): epoch_loss,
     #     "{}/mAcc".format(publisher): epoch_acc["class"],
     #     "{}/oAcc".format(publisher): epoch_acc["overall"],
     #     "{}/IoU".format(publisher): epoch_acc["iou"]
