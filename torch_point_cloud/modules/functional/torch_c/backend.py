@@ -20,6 +20,8 @@ _backend = load(name='_torch_c',
                     'voxelization/vox.cu',
                     'knn/k_nearest_neighbors.cpp',
                     'knn/k_nearest_neighbors.cu',
+                    "gather/gather.cpp",
+                    "gather/gather.cu",
                     'bindings.cpp',
                 ]]
             )

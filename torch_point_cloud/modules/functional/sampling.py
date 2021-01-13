@@ -7,6 +7,17 @@ from torch.autograd import Function
 
 from .torch_c.backend import _backend
 
+def gather(point_clouds, indices):
+    output_shape = [*point_clouds.shape[:2],*indices.shape[1:]]
+    point_idxs_size = sum(output_shape[2:])
+    gathered_point_clouds = _backend.gather(
+        point_idxs_size,
+        output_shape,
+        point_clouds, 
+        indices
+    )
+    return gathered_point_clouds
+
 def furthest_point_sample(coords, num_samples):
     """
     Uses iterative furthest point sampling.

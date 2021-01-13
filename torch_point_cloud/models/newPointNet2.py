@@ -9,6 +9,8 @@ from torch_point_cloud.modules.PointNetSetAbstraction import(
 from torch_point_cloud.modules.newfpmodule import(
     PointNetFeaturePropagation)
 
+from torch_point_cloud.utils.monitor import timecheck
+
 class PointNet2SSGClassification(nn.Module):
     """
     PointNet++ with SSG for Classification
@@ -137,6 +139,90 @@ FP_MLPS = [[512, 512], [512, 512], [256, 256], [128, 128]]
 CLS_FC = [128]
 DP_RATIO = 0.5
 
+# class PointNet2MSGSemanticSegmentation(nn.Module):
+#     """
+#     Parameters
+#     ----------
+#     point_feature_size:int
+#         feature size other than xyz
+#     """
+#     def __init__(self, point_feature_size, num_points=NPOINTS, radius=RADIUS, 
+#                  num_sample=NSAMPLE, mlps=MLPS, fp_mls=FP_MLPS, cls_fc=CLS_FC, 
+#                  dp_ratio=DP_RATIO):
+#         super().__init__()
+        
+#         self.sa_msg_modules = nn.ModuleList()
+#         prev_feature_size = point_feature_size
+#         sa_output_feature_size = []
+#         for i in range(len(num_points)):
+#             self.sa_msg_modules.append(
+#                 PointNetSetAbstractionMSG(
+#                     num_points[i],
+#                     radius[i],
+#                     num_sample[i],
+#                     prev_feature_size,
+#                     mlps[i]
+#                 )
+#             )
+#             prev_feature_size = 0
+#             for feature_size in mlps[i]: prev_feature_size += feature_size[-1]
+#             sa_output_feature_size.append(prev_feature_size)
+
+#         # for fp module
+#         sa_output_feature_size = list(reversed(sa_output_feature_size))
+
+#         self.fp_modules = nn.ModuleList()
+#         prev_feature_size = sa_output_feature_size[0]
+#         for i in range(len(fp_mls)):
+#             input_feature_size = prev_feature_size
+#             if len(sa_output_feature_size) > i+1:
+#                 input_feature_size += sa_output_feature_size[i+1]
+#             self.fp_modules.append(
+#                 PointNetFeaturePropagation(
+#                     input_feature_size,
+#                     fp_mls[i]
+#                 )
+#             )
+#             prev_feature_size = fp_mls[i][-1]
+
+#         self.cls_fc = nn.ModuleList()
+#         prev_feature_size = fp_mls[-1][-1]
+#         for i in range(len(cls_fc)):
+#             self.cls_fc.append(PointwiseConv1D(prev_feature_size, cls_fc[i]))
+#             prev_feature_size = cls_fc[i]
+#         # Not implemetation : dp_ratio
+
+#     def forward(self, xyz, features):
+#         sa_features_list = []
+#         sa_xyz_list = []
+
+#         sa_features_list.append(features)
+#         sa_xyz_list.append(xyz)
+#         for sa_msg in self.sa_msg_modules:
+#             sa_xyz, sa_features = sa_msg(sa_xyz_list[-1], sa_features_list[-1])
+#             sa_xyz_list.append(sa_xyz)
+#             sa_features_list.append(sa_features)
+
+#         # for fp module
+#         sa_xyz_list = list(reversed(sa_xyz_list))
+#         sa_features_list = list(reversed(sa_features_list))
+
+#         prev_features = sa_features_list[0]
+#         for i, fp in enumerate(self.fp_modules):
+#             # don't concat intensity data
+#             if len(sa_features_list)-1 > i+1:
+#                 sa_features = sa_features_list[i+1]
+#             else:
+#                 sa_features = None
+#             prev_features = fp(sa_xyz_list[i+1], sa_xyz_list[i], 
+#                                sa_features, prev_features)
+
+#         outpus = prev_features
+#         for fc in self.cls_fc:
+#             outpus = fc(outpus)
+
+#         return outpus
+
 class PointNet2MSGSemanticSegmentation(nn.Module):
     """
     Parameters
@@ -149,6 +235,7 @@ class PointNet2MSGSemanticSegmentation(nn.Module):
                  dp_ratio=DP_RATIO):
         super().__init__()
         
+        # create sa modules
         self.sa_msg_modules = nn.ModuleList()
         prev_feature_size = point_feature_size
         sa_output_feature_size = []
@@ -166,10 +253,9 @@ class PointNet2MSGSemanticSegmentation(nn.Module):
             for feature_size in mlps[i]: prev_feature_size += feature_size[-1]
             sa_output_feature_size.append(prev_feature_size)
 
-        # for fp module
-        sa_output_feature_size = list(reversed(sa_output_feature_size))
-
+        # create fp module
         self.fp_modules = nn.ModuleList()
+        sa_output_feature_size = list(reversed(sa_output_feature_size))
         prev_feature_size = sa_output_feature_size[0]
         for i in range(len(fp_mls)):
             input_feature_size = prev_feature_size
@@ -181,8 +267,9 @@ class PointNet2MSGSemanticSegmentation(nn.Module):
                     fp_mls[i]
                 )
             )
-            prev_feature_size = fp_mls[i][-1]
+            prev_feature_size = fp_mls[i][-1] 
 
+        # create branch
         self.cls_fc = nn.ModuleList()
         prev_feature_size = fp_mls[-1][-1]
         for i in range(len(cls_fc)):
@@ -191,33 +278,31 @@ class PointNet2MSGSemanticSegmentation(nn.Module):
         # Not implemetation : dp_ratio
 
     def forward(self, xyz, features):
-        sa_features_list = []
-        sa_xyz_list = []
+        sa_features_list = [features]
+        sa_xyz_list = [xyz]
 
-        sa_features_list.append(features)
-        sa_xyz_list.append(xyz)
+        t = timecheck()
+        # sa
         for sa_msg in self.sa_msg_modules:
             sa_xyz, sa_features = sa_msg(sa_xyz_list[-1], sa_features_list[-1])
             sa_xyz_list.append(sa_xyz)
             sa_features_list.append(sa_features)
+        t = timecheck(t, "sa")
 
-        # for fp module
-        sa_xyz_list = list(reversed(sa_xyz_list))
-        sa_features_list = list(reversed(sa_features_list))
-
-        prev_features = sa_features_list[0]
-        for i, fp in enumerate(self.fp_modules):
+        # fp
+        prev_features = sa_features_list[-1]
+        for i in range(len(self.fp_modules)):
             # don't concat intensity data
-            if len(sa_features_list)-1 > i+1:
-                sa_features = sa_features_list[i+1]
-            else:
-                sa_features = None
-            prev_features = fp(sa_xyz_list[i+1], sa_xyz_list[i], 
-                               sa_features, prev_features)
-
+            curr_idx = -(i+1)
+            next_idx = -(i+2)
+            sa_features = sa_features_list[next_idx]
+            prev_features = self.fp_modules[i](sa_xyz_list[next_idx], 
+                                               sa_xyz_list[curr_idx], 
+                                               sa_features, prev_features)
+        t = timecheck(t, "fp")
+        # branch
         outpus = prev_features
         for fc in self.cls_fc:
             outpus = fc(outpus)
 
         return outpus
-

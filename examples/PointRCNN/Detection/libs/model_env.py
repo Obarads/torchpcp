@@ -17,6 +17,8 @@ from torch_point_cloud.models.PointRCNN import PointRCNN
 # configs
 from torch_point_cloud.configs.PointRCNN.config import cfg as ocfg
 
+from torch_point_cloud.utils.monitor import timecheck
+
 from libs.losses import Criterion
 
 def create_logger(log_file):
@@ -142,7 +144,9 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     pts_input = pts_input.permute(0, 2, 1).contiguous()
     input_data = {'pts_input': pts_input, 'gt_boxes3d': gt_boxes3d}
 
+    t = timecheck()
     ret_dict = model(input_data)
+    timecheck(t)
 
     # compute losses with criterion
     rpn_cls = ret_dict["rpn_cls"]

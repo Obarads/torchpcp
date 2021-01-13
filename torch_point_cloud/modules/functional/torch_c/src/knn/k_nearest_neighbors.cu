@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <iostream>
 
-#include <torch/extension.h>
-
 #include "../cuda_utils.cuh"
 
 /*

@@ -14,6 +14,7 @@ from torch_point_cloud.modules.Layer import PointwiseConv1D
 from torch_point_cloud.modules.ProposalLayer import RPNProposalLayer
 
 from torch_point_cloud.configs.PointRCNN.config import cfg
+from torch_point_cloud.utils.monitor import timecheck
 
 class RPN(nn.Module):
     def __init__(self, use_xyz=True, mode='TRAIN'):
@@ -23,7 +24,7 @@ class RPN(nn.Module):
         # MODEL = importlib.import_module(cfg.RPN.BACKBONE)
         # self.backbone_net = MODEL.get_model(input_channels=int(cfg.RPN.USE_INTENSITY), use_xyz=use_xyz)
 
-        self.point_feature_size = 1
+        self.point_feature_size = int(cfg.RPN.USE_INTENSITY)
         self.backbone_net = PointNet2MSGSemanticSegmentation(self.point_feature_size)
 
         # classification branch
