@@ -34,3 +34,5 @@ for data in loader:
     outs = gather(point_clouds, center_idxs)
     print(outs)
     exit()
+
+
