@@ -3,11 +3,9 @@ from torch import nn
 from torch.nn import functional as F
 
 from torch_point_cloud.modules.Layer import PointwiseConv2D
-from torch_point_cloud.modules.functional import (
-    index2points,
-    furthest_point_sample
-)
-from torch_point_cloud.modules.functional.ball_query import ball_query
+from torch_point_cloud.modules.functional.sampling import furthest_point_sampling
+from torch_point_cloud.modules.functional.nns import ball_query
+from torch_point_cloud.modules.functional.other import index2points
 
 def sampling_layer(coords, num_samples):
     """
@@ -25,7 +23,7 @@ def sampling_layer(coords, num_samples):
     sampled_coords : torch.tensor [B, 3, num_samples]
         sampled xyz using furthest point sample
     """
-    fps_idx = furthest_point_sample(coords, num_samples) # fps_idx = batch_fps(coords, num_samples)
+    fps_idx = furthest_point_sampling(coords, num_samples) # fps_idx = batch_fps(coords, num_samples)
     fps_idx = fps_idx.type(torch.long)
     sampled_coords = index2points(coords, fps_idx)
     return sampled_coords

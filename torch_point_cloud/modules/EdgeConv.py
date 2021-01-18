@@ -2,10 +2,8 @@ import torch
 from torch import nn
 
 from torch_point_cloud.modules.Layer import Conv2DModule
-from torch_point_cloud.modules.functional.sampling import (
-    index2points,
-    k_nearest_neighbors
-)
+from torch_point_cloud.modules.functional.nns import k_nearest_neighbors
+from torch_point_cloud.modules.functional.other import index2points
 
 class EdgeConv(nn.Module):
     def __init__(self, in_channel, out_channel, k, memory_saving=False):
@@ -27,7 +25,7 @@ class EdgeConv(nn.Module):
 
 def get_graph_feature(x, k=20, memory_saving=False):
     B, C, N = x.shape
-    k_idx, _ = k_nearest_neighbors(x, x, k, memory_saving=memory_saving)
+    k_idx, _ = k_nearest_neighbors(x, x, k)
     feature = index2points(x, k_idx)
     x = x.view(B, C, N, 1).repeat(1, 1, 1, k)
     # x = torch.unsqueeze(x, dim=-1)

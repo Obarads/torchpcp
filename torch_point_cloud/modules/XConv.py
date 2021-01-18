@@ -1,9 +1,11 @@
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.Layer import PointwiseConv2D, DepthwiseSeparableConv2D, LinearModule
-from torch_point_cloud.modules.functional import sampling
+from torch_point_cloud.modules.Layer import (
+    PointwiseConv2D, DepthwiseSeparableConv2D, Linear)
 from torch_point_cloud.modules.XTransformation import XTransform
+from torch_point_cloud.modules.functional.nns import k_nearest_neighbors
+from torch_point_cloud.modules.functional.other import index2points, localize
 
 class XConv(nn.Module):
     def __init__(
@@ -40,8 +42,8 @@ class XConv(nn.Module):
 
         if with_global: # (https://github.com/yangyanli/PointCNN/blob/91fde862b1818aec305dacafe7438d8f1ca1d1ea/pointcnn.py#L47)
             self.linear1 = nn.Sequential(
-                LinearModule(3, out_channel//4),
-                LinearModule(out_channel//4, out_channel//4)
+                Linear(3, out_channel//4),
+                Linear(out_channel//4, out_channel//4)
             )
 
         self.k = k
@@ -53,17 +55,17 @@ class XConv(nn.Module):
 
 
     def forward(self, center_coords, coords, features):
-        knn_indexes, _ = sampling.k_nearest_neighbors(center_coords, coords, self.k * self.dilation, self.memory_saving)
+        knn_indexes, _ = k_nearest_neighbors(center_coords, coords, self.k * self.dilation)
         knn_indexes = knn_indexes[:, :, ::self.dilation]
-        knn_coords = sampling.index2points(coords, knn_indexes)
-        knn_local_coords = sampling.localize(center_coords, knn_coords) # (B,C,N,k)
+        knn_coords = index2points(coords, knn_indexes)
+        knn_local_coords = localize(center_coords, knn_coords) # (B,C,N,k)
         
         feature_d = self.mlp_d(knn_local_coords)
 
         if self.point_feature_size == 0:
             feature_a = feature_d
         else:
-            knn_features = sampling.index2points(features, knn_indexes)
+            knn_features = index2points(features, knn_indexes)
             feature_a = torch.cat([feature_d, knn_features], dim=1) # [B, C+add_C, N, k]
 
         if self.use_x_transformation:

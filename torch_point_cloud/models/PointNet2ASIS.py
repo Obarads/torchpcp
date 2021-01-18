@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 
-from torch_point_cloud.modules.Layer import Conv1DModule, LinearModule
+from torch_point_cloud.modules.Layer import PointwiseConv1D
 from torch_point_cloud.modules.PointNetSetAbstraction import PointNetSetAbstraction
 from torch_point_cloud.modules.PointNetFeaturePropagation import PointNetFeaturePropagation
 from torch_point_cloud.modules.ASIS import ASIS
@@ -28,8 +28,8 @@ class PointNet2ASIS(nn.Module):
         self.fp_ins2 = PointNetFeaturePropagation(320, [256, 128])
         self.fp_ins1 = PointNetFeaturePropagation(128+6, [128, 128, 128])
 
-        self.sem_fc = Conv1DModule(128, 128) # for F_SEM
-        self.ins_fc = Conv1DModule(128, 128) # for F_INS
+        self.sem_fc = PointwiseConv1D(128, 128) # for F_SEM
+        self.ins_fc = PointwiseConv1D(128, 128) # for F_INS
 
         self.asis = ASIS(128, num_classes, 128, ins_channel, 30)
 

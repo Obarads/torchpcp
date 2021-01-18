@@ -6,7 +6,11 @@ data
 .empty
 function_test
 .ipynb_checkpoints
+*.egg-info
+dist
+build
 
 # file
 *.ply
 *.h5
+error.txt

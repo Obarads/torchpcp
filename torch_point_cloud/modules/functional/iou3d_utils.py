@@ -1,5 +1,5 @@
 import torch
-import iou3d_cuda
+# import iou3d_cuda
 from torch_point_cloud.modules.functional import kitti_utils
 
 def boxes_iou_bev(boxes_a, boxes_b):
@@ -12,7 +12,7 @@ def boxes_iou_bev(boxes_a, boxes_b):
 
     ans_iou = torch.cuda.FloatTensor(torch.Size((boxes_a.shape[0], boxes_b.shape[0]))).zero_()
 
-    iou3d_cuda.boxes_iou_bev_gpu(boxes_a.contiguous(), boxes_b.contiguous(), ans_iou)
+    # iou3d_cuda.boxes_iou_bev_gpu(boxes_a.contiguous(), boxes_b.contiguous(), ans_iou)
 
     return ans_iou
 
@@ -29,7 +29,7 @@ def boxes_iou3d_gpu(boxes_a, boxes_b):
 
     # bev overlap
     overlaps_bev = torch.cuda.FloatTensor(torch.Size((boxes_a.shape[0], boxes_b.shape[0]))).zero_()  # (N, M)
-    iou3d_cuda.boxes_overlap_bev_gpu(boxes_a_bev.contiguous(), boxes_b_bev.contiguous(), overlaps_bev)
+    # iou3d_cuda.boxes_overlap_bev_gpu(boxes_a_bev.contiguous(), boxes_b_bev.contiguous(), overlaps_bev)
 
     # height overlap
     boxes_a_height_min = (boxes_a[:, 1] - boxes_a[:, 3]).view(-1, 1)
@@ -65,7 +65,8 @@ def nms_gpu(boxes, scores, thresh):
     boxes = boxes[order].contiguous()
 
     keep = torch.LongTensor(boxes.size(0))
-    num_out = iou3d_cuda.nms_gpu(boxes, keep, thresh)
+    # num_out = iou3d_cuda.nms_gpu(boxes, keep, thresh)
+    num_out = 0 #add
     return order[keep[:num_out].cuda()].contiguous()
 
 
@@ -82,7 +83,8 @@ def nms_normal_gpu(boxes, scores, thresh):
     boxes = boxes[order].contiguous()
 
     keep = torch.LongTensor(boxes.size(0))
-    num_out = iou3d_cuda.nms_normal_gpu(boxes, keep, thresh)
+    # num_out = iou3d_cuda.nms_normal_gpu(boxes, keep, thresh)
+    num_out = 0 #add
     return order[keep[:num_out].cuda()].contiguous()
 
 

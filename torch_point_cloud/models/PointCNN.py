@@ -5,7 +5,8 @@ from torch import nn
 
 from torch_point_cloud.modules.XConv import XConv
 from torch_point_cloud.modules.Layer import PointwiseConv1D
-from torch_point_cloud.modules.functional import sampling
+from torch_point_cloud.modules.functional.sampling import random_sampling
+from torch_point_cloud.modules.functional.other import index2points
 
 class PointCNNClassification(nn.Module):
     """
@@ -115,10 +116,10 @@ class PointCNNClassification(nn.Module):
 
     def subsampling(self, coords, num_samples):
         B, C, N = coords.shape
-        sampled_point_indices = sampling.random_sampling(N, num_samples)
+        sampled_point_indices = random_sampling(N, num_samples)
         sampled_point_indices = torch.tensor(sampled_point_indices, device=coords.device).view(1, num_samples).contiguous()
         sampled_point_indices = sampled_point_indices.repeat(B, 1).contiguous()
-        center_coords = sampling.index2points(coords, sampled_point_indices)
+        center_coords = index2points(coords, sampled_point_indices)
         return center_coords
 
 

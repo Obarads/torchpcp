@@ -62,9 +62,7 @@ class ShapeNetPart(dict):
 # https://github.com/yanx27/Pointnet_Pointnet2_pytorch/blob/master/train_partseg.py
 def to_categorical(y, num_classes):
     """ 1-hot encodes a tensor """
-    new_y = torch.eye(num_classes)[y.cpu().data.numpy(),]
-    if (y.is_cuda):
-        return new_y.cuda()
+    new_y = torch.eye(num_classes, device=y.device)[y.cpu().data.numpy(),]
     return new_y
 
 # https://github.com/charlesq34/pointnet/blob/master/provider.py

@@ -11,7 +11,7 @@ import numpy as np
 
 from torch_point_cloud.models.newPointNet2 import PointNet2MSGSemanticSegmentation
 from torch_point_cloud.modules.Layer import PointwiseConv1D
-from torch_point_cloud.modules.ProposalLayer import RPNProposalLayer
+# from torch_point_cloud.modules.ProposalLayer import RPNProposalLayer
 
 from torch_point_cloud.configs.PointRCNN.config import cfg
 from torch_point_cloud.utils.monitor import timecheck
@@ -88,7 +88,7 @@ class RPN(nn.Module):
         # else:
         #     raise NotImplementedError
 
-        self.proposal_layer = RPNProposalLayer(mode=mode)
+        # self.proposal_layer = RPNProposalLayer(mode=mode)
         self.init_weights()
 
     def init_weights(self):

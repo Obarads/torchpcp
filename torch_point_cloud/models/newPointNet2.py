@@ -6,7 +6,7 @@ from torch_point_cloud.modules.Layer import PointwiseConv1D, Linear
 
 from torch_point_cloud.modules.PointNetSetAbstraction import(
     PointNetSetAbstraction, PointNetSetAbstractionMSG)
-from torch_point_cloud.modules.newfpmodule import(
+from torch_point_cloud.modules.PointNetFeaturePropagation2 import(
     PointNetFeaturePropagation)
 
 from torch_point_cloud.utils.monitor import timecheck

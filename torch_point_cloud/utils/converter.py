@@ -87,6 +87,56 @@ def embedding_to_color(embeddings):
     color = np.array(255 * value, dtype='uint8')
     return color
 
+## boundary
+
+# def label_and_features_to_label_boundary(features, k, label, radius=0.05, 
+#                                             method="knn"):
+#     """
+#     create label boundary information.
+
+#     Parameters
+#     ----------
+#         features:torch.tensor (shape:(batch, num_points, num_dims))
+#             coordinates 
+#         k:int
+#             k of kNN
+#         label:torch.tensor (shape:(batch, num_points))
+#             labels
+#         radius:float
+#             ball query radius (method="ball_query")
+#         method:str
+#             method to create is_transition (knn or ball_query)
+#     Returns:
+#     --------
+#         source:torch.tensor (shape: (batch*num_points*k))
+#         target:torch.tensor (shape: (batch*num_points*k))
+#         is_transition:torch.tensor (shape: (batch*num_points*k))
+#     """
+
+#     features = torch.transpose(features, 1, 2).contiguous()
+
+#     if method == "knn":
+#         idx_w_centerpoint = k_nearest_neighbors(features, features, k+1, memory_saving=True)
+#     elif method == "ball_query":
+#         if features.shape[2] != 3:
+#             raise NotImplementedError("The ball_query is only for features num_dims == 3")
+#         idx_w_centerpoint = ball_query.ball_query(features, features, radius, k+1)
+#     else:
+#         NotImplementedError("knn or ball_query")
+
+#     source = idx_w_centerpoint[:,:,0:1].repeat(1,1,k) # get center points of kNN
+#     target = idx_w_centerpoint[:,:,1:] # remove center points of kNN
+
+#     source = index2row(source)
+#     target = index2row(target)
+
+#     label = label.view(-1)
+#     source_label = label[source]
+#     target_label = label[target]
+
+#     is_transition = source_label != target_label
+
+#     return source, target, is_transition 
 
 # def mesh_to_points(vertices, faces):
 #     """

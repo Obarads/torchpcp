@@ -1,5 +1,5 @@
 import torch
-import roipool3d_cuda
+# import roipool3d_cuda
 import numpy as np
 
 from torch_point_cloud.modules.functional import kitti_utils
@@ -22,8 +22,8 @@ def roipool3d_gpu(pts, pts_feature, boxes3d, pool_extra_width, sampled_pt_num=51
                                                          sampled_pt_num, 3 + feature_len))).zero_()
     pooled_empty_flag = torch.cuda.IntTensor(torch.Size((batch_size, boxes_num))).zero_()
 
-    roipool3d_cuda.forward(pts.contiguous(), pooled_boxes3d.contiguous(),
-                           pts_feature.contiguous(), pooled_features, pooled_empty_flag)
+    # roipool3d_cuda.forward(pts.contiguous(), pooled_boxes3d.contiguous(),
+    #                        pts_feature.contiguous(), pooled_features, pooled_empty_flag)
 
     return pooled_features, pooled_empty_flag
 
@@ -38,7 +38,7 @@ def pts_in_boxes3d_cpu(pts, boxes3d):
         pts = pts.float().contiguous()
         boxes3d = boxes3d.float().contiguous()
         pts_flag = torch.LongTensor(torch.Size((boxes3d.size(0), pts.size(0))))  # (M, N)
-        roipool3d_cuda.pts_in_boxes3d_cpu(pts_flag, pts, boxes3d)
+        # roipool3d_cuda.pts_in_boxes3d_cpu(pts_flag, pts, boxes3d)
 
         boxes_pts_mask_list = []
         for k in range(0, boxes3d.shape[0]):
@@ -65,7 +65,7 @@ def roipool_pc_cpu(pts, pts_feature, boxes3d, sampled_pt_num):
     pooled_pts = torch.FloatTensor(torch.Size((boxes3d.shape[0], sampled_pt_num, 3))).zero_()
     pooled_features = torch.FloatTensor(torch.Size((boxes3d.shape[0], sampled_pt_num, pts_feature.shape[1]))).zero_()
     pooled_empty_flag = torch.LongTensor(boxes3d.shape[0]).zero_()
-    roipool3d_cuda.roipool3d_cpu(pts, boxes3d, pts_feature, pooled_pts, pooled_features, pooled_empty_flag)
+    # roipool3d_cuda.roipool3d_cpu(pts, boxes3d, pts_feature, pooled_pts, pooled_features, pooled_empty_flag)
     return pooled_pts, pooled_features, pooled_empty_flag
 
 

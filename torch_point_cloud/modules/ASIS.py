@@ -3,10 +3,8 @@ from torch import nn
 
 from torch_point_cloud.modules.Layer import Conv1DModule
 # from torch_point_cloud.modules.Sampling import knn_index, index2points
-from torch_point_cloud.modules.functional.sampling import (
-    k_nearest_neighbors,
-    index2points
-)
+from torch_point_cloud.modules.functional.nns import k_nearest_neighbors
+from torch_point_cloud.modules.functional.other import index2points
 
 class ASIS(nn.Module):
     def __init__(self, sem_in_channels, sem_out_channels, ins_in_channels, 
@@ -42,8 +40,7 @@ class ASIS(nn.Module):
         e_ins = self.ins_emb_fc(f_sins)
 
         # for P_SEM
-        nn_idx, _ = k_nearest_neighbors(e_ins, e_ins, self.k, 
-                                     memory_saving=self.memory_saving)
+        nn_idx, _ = k_nearest_neighbors(e_ins, e_ins, self.k)
         k_f_sem = index2points(f_sem, nn_idx)
         f_isem = torch.max(k_f_sem, dim=3, keepdim=True)[0]
         f_isem = torch.squeeze(f_isem, dim=3)

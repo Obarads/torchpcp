@@ -1,9 +1,6 @@
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.Layer import Conv2DModule
-from torch_point_cloud.modules.functional import sampling
-
 from torch_point_cloud.modules.Layer import Conv2D
 
 class XTransform(nn.Module):
