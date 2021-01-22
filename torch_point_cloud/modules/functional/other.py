@@ -5,7 +5,7 @@ import torch
 from torch import nn
 from torch.autograd import Function
 
-from .torch_c.backend import _backend
+from .torchpct_cpp.backend import _backend
 
 def gather(point_clouds, indices):
     output_shape = [*point_clouds.shape[:2],*indices.shape[1:]]

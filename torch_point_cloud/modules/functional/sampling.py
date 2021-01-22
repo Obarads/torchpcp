@@ -1,6 +1,6 @@
 import numpy as np
 
-from .torch_c.backend import _backend
+from .torchpct_cpp.backend import _backend
 
 def furthest_point_sampling(coords, num_samples):
     """
