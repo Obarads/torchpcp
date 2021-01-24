@@ -6,30 +6,32 @@ from torch_point_cloud.modules.functional.other import index2points, localize
 from torch_point_cloud.modules.functional.sampling import furthest_point_sampling
 # from torch_point_cloud.modules.Layer import PointwiseConv2D
 
+from einops import repeat
+
 class PointTransformerLayer(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size, k):
+    """
+    """
+    def __init__(self, in_channel_size, out_channel_size, coords_channel_size, k):
         super().__init__()
         # phi (pointwise feature transformations)
         self.linear_phi = nn.Conv1d(in_channel_size, out_channel_size, 1)
         # psi (pointwise feature transformations)
         self.linear_psi = nn.Conv1d(in_channel_size, out_channel_size, 1)
         # alpha (pointwise feature transformation)
-        ao = 1
-        self.linear_alpha = nn.Conv1d(in_channel_size, ao, 1)
+        self.linear_alpha = nn.Conv1d(in_channel_size, out_channel_size, 1)
 
-        g_in, g_out = 1, 1
         #  gamma (mapping function)
         self.mlp_gamma = nn.Sequential(
-            nn.Conv1d(g_in, g_out, 1),
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1)),
             nn.ReLU(inplace=True),
-            nn.Conv1d(g_out, g_out, 1)
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1))
         )
 
         # rho (normalization function)
         self.normalization_rho = nn.Softmax(dim=-1)
 
         # delta (potition encoding)
-        self.pe_delta = PositionEncoding(1,1)
+        self.pe_delta = PositionEncoding(coords_channel_size, out_channel_size)
         self.k = k
 
         
@@ -45,7 +47,7 @@ class PointTransformerLayer(nn.Module):
         outputs_alpha = self.linear_alpha(features)
 
         # Get space between features of points.
-        knn_indices = k_nearest_neighbors(features, features, self.k)
+        knn_indices, _ = k_nearest_neighbors(features, features, self.k)
         knn_outputs_psi = index2points(outputs_psi, knn_indices)
         features_space = localize(outputs_phi, knn_outputs_psi) * -1
 
@@ -59,9 +61,12 @@ class PointTransformerLayer(nn.Module):
         outputs_rho = self.normalization_rho(outputs_gamma)
 
         # \alpha(x_j) + \delta
+        # print(outputs_alpha.shape, outputs_delta.shape)
+        outputs_alpha = repeat(outputs_alpha, 'b c n -> b c n k', k=self.k) # really?????
         outputs_alpha_delta = outputs_alpha + outputs_delta
 
         # compute value with hadamard product
+        # print(outputs_rho.shape, outputs_alpha_delta.shape)
         outputs_hp = outputs_rho * outputs_alpha_delta
 
         # aggregation outputs
@@ -76,7 +81,7 @@ class PositionEncoding(nn.Module):
         self.mlp_theta = nn.Sequential(
             nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_channel_size, out_channel_size, (1,1))
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1))
         )
         # self.k = k
 
@@ -98,15 +103,14 @@ class PositionEncoding(nn.Module):
         return outputs
 
 class PointTransformerBlock(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size, k):
+    def __init__(self, in_channel_size, coords_channel_size, k):
         super().__init__()
 
         self.linear1 = nn.Conv1d(in_channel_size, in_channel_size, 1)
         self.linear2 = nn.Conv1d(in_channel_size, in_channel_size, 1)
 
-        self.point_transforme = PointTransformerLayer(in_channel_size, in_channel_size, k)
-
-        self.k = k
+        self.point_transforme = PointTransformerLayer(
+            in_channel_size, in_channel_size, coords_channel_size, k)
 
     def forward(self, x, coords):
         identity = x
@@ -116,7 +120,7 @@ class PointTransformerBlock(nn.Module):
         return y
 
 class TransitionDown(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size, k, num_sampling):
+    def __init__(self, in_channel_size, out_channel_size, k, num_samples):
         super().__init__()
         self.mlp = nn.Sequential(
             nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
@@ -125,7 +129,7 @@ class TransitionDown(nn.Module):
         )
 
         self.k = k
-        self.num_sampling
+        self.num_samples = num_samples
 
     def forward(self, x, coords):
         # Get p and x of fps indices
@@ -134,7 +138,7 @@ class TransitionDown(nn.Module):
         fps_coords = index2points(coords, fps_indices) # p
 
         # Get knn indices
-        knn_indices = k_nearest_neighbors(fps_coords, coords, self.k)
+        knn_indices, _ = k_nearest_neighbors(fps_coords, coords, self.k)
         knn_x = index2points(x, knn_indices)
 
         # MLP
@@ -143,23 +147,23 @@ class TransitionDown(nn.Module):
         # Use local max pooling. 
         y, _ = torch.max(knn_mlp_x, dim=-1)
 
-        return y
+        return y, fps_coords
 
-class TransitionUp(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size):
-        super().__init__()
+# class TransitionUp(nn.Module):
+#     def __init__(self, in_channel_size, out_channel_size):
+#         super().__init__()
 
-        self.mlp_1 = nn.Sequential(
-            nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
-            nn.BatchNorm2d(out_channel_size),
-            nn.ReLU(inplace=True)
-        )
+#         self.mlp_1 = nn.Sequential(
+#             nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
+#             nn.BatchNorm2d(out_channel_size),
+#             nn.ReLU(inplace=True)
+#         )
 
-        self.mlp_2 = nn.Sequential(
-            nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
-            nn.BatchNorm2d(out_channel_size),
-            nn.ReLU(inplace=True)
-        )
+#         self.mlp_2 = nn.Sequential(
+#             nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
+#             nn.BatchNorm2d(out_channel_size),
+#             nn.ReLU(inplace=True)
+#         )
 
         
 
