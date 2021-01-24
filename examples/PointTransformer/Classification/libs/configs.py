@@ -2,8 +2,8 @@
 ## ref: https://hydra.cc/docs/next/tutorials/structured_config/config_groups
 ##
 
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, field
+from typing import Any, List
 
 from omegaconf import MISSING, OmegaConf
 
@@ -74,7 +74,7 @@ class Loader:
 @dataclass
 class Optimizer:
     # learning rate
-    lr: float = 0.001
+    lr: float = 0.05
 
 ##
 ## Scheduler
@@ -84,9 +84,9 @@ class Optimizer:
 class Scheduler:
     # use torch.optim.lr_scheduler.StepLR
     # scheduler step_size
-    epoch_size: int = 20
+    # epoch_list: List[int] = field(default_factory=list) [120, 160]
     # scheduler gamma
-    decay_rate: float = 0.5
+    decay_rate: float = 0.1
 
 ##
 ## Loss function

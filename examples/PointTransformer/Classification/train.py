@@ -49,7 +49,7 @@ def main(cfg: configs.ModelNet40Config) -> None:
     ## Get optimizer.
     optimizer = get_optimizer(cfg, model)
     ## Get scheduler.
-    # scheduler = get_scheduler(cfg, optimizer)
+    scheduler = get_scheduler(cfg, optimizer)
     ## Get logger.
     writer = get_writer(cfg)
 
@@ -60,7 +60,8 @@ def main(cfg: configs.ModelNet40Config) -> None:
     # training start
     for epoch in loader:
         # training
-        train_log = train(cfg, model, train_dataset_loader, optimizer, criterion)
+        train_log = train(cfg, model, train_dataset_loader, optimizer, criterion,
+                          scheduler)
         # save training log
         monitor.dict2logger(train_log, writer, epoch, cfg.writer.name)
 
@@ -72,14 +73,15 @@ def main(cfg: configs.ModelNet40Config) -> None:
         # save params and model
         if (epoch+1) % cfg.general.save_epoch == 0 and \
             cfg.general.save_epoch != -1:
-            save_params("model.path.tar", epoch+1, cfg, model, optimizer)
+            save_params("model.path.tar", epoch+1, cfg, model, optimizer, 
+                        scheduler)
 
-    print('Epoch {}/{}:'.format(cfg.general.epochs, cfg.general.epochs))
-    save_params("f_model.path.tar", cfg.general.epochs, cfg, model, optimizer)
+    save_params("f_model.path.tar", cfg.general.epochs, cfg, model, optimizer,
+                scheduler)
 
     print("Finish training.")
 
-def train(cfg, model, loader, optimizer, criterion, publisher="train"):
+def train(cfg, model, loader, optimizer, criterion, scheduler, publisher="train"):
     model.train()
 
     # metrics
@@ -101,14 +103,16 @@ def train(cfg, model, loader, optimizer, criterion, publisher="train"):
             print("Training loss is nan.")
             exit()
 
+    scheduler.step()
+
     # get epoch loss and accuracy
     epoch_loss = batch_loss.compute()
     epoch_acc = acc_meter.compute()
 
     # save loss and acc to tensorboard
-    # lr = scheduler.get_last_lr()[0]
+    lr = scheduler.get_last_lr()[0]
     log_dict = {
-        # "lr": lr,
+        "lr": lr,
         "{}/loss".format(publisher): epoch_loss,
         "{}/mAcc".format(publisher): epoch_acc["class"],
         "{}/oAcc".format(publisher): epoch_acc["overall"],

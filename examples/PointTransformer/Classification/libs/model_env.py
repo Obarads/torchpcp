@@ -75,12 +75,12 @@ def get_scheduler(cfg, optimizer):
     """
     Get scheduler for training.
     """
-    # scheduler = lr_scheduler.StepLR(
-    #     optimizer, 
-    #     step_size=cfg.scheduler.epoch_size, 
-    #     gamma=cfg.scheduler.decay_rate
-    # )
-    scheduler = None
+    scheduler = lr_scheduler.MultiStepLR(
+        optimizer, 
+        # milestones=cfg.scheduler.epoch_list,
+        milestones=[120,160],
+        gamma=cfg.scheduler.decay_rate
+    )
     return scheduler
 
 def get_losses(cfg):
@@ -143,13 +143,13 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     else:
         return loss
 
-def save_params(model_path, epoch, cfg, model, optimizer):
+def save_params(model_path, epoch, cfg, model, optimizer, scheduler):
     torch.save({
         'epoch': epoch,
         'cfg': omegaconf.OmegaConf.to_container(cfg),
         'model': model.state_dict(),
         'optimizer': optimizer.state_dict(),
-        # 'scheduler': scheduler.state_dict()
+        'scheduler': scheduler.state_dict()
     }, model_path)
 
 def get_checkpoint(cfg):
