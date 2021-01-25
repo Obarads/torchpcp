@@ -9,21 +9,23 @@ from torch_point_cloud.modules.PointTransformerBlock import (
 from torch_point_cloud.modules.Layer import PointwiseConv1D, Linear
 
 class TDPT(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size, td_k, num_sampling, pt_k):
+    def __init__(self, in_channel_size, out_channel_size, coord_channel_size, td_k, num_sampling, pt_k):
         super().__init__()
 
         self.td = TransitionDown(in_channel_size, out_channel_size, td_k, num_sampling)
-        self.pt = PointTransformerBlock(out_channel_size, 3, pt_k)
+        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//4, 
+                                        coord_channel_size, pt_k)
 
     def forward(self, x, p1):
         x, p2 = self.td(x, p1)
         y = self.pt(x, p2)
         return y, p2
 
-IN_CHANNEL_SIZE = 3
+IN_CHANNEL_SIZE = 6
 IN_OUT_CHANNEL_SIZE = 32
 IN_PT_K = 16
 
+COORD_CHANNEL_SIZE=3
 DATASET_NUM_POINTS = 1024
 
 NUM_POINTS = [DATASET_NUM_POINTS//4, DATASET_NUM_POINTS//16, DATASET_NUM_POINTS//64, 
@@ -44,12 +46,14 @@ class PointTransformerClassification(nn.Module):
         out_channel_sizes=OUT_CHANNEL_SIZES,
         td_ks=TD_KS,
         pt_ks=PT_KS,
-        out_out_channel_sizes=OUT_OUT_CHANNEL_SIZES
+        out_out_channel_sizes=OUT_OUT_CHANNEL_SIZES,
+        coord_channel_size=COORD_CHANNEL_SIZE
     ):
         super().__init__()
 
         self.input_mlp = PointwiseConv1D(in_channel_size, in_out_channel_size)
-        self.module_1 = PointTransformerBlock(in_out_channel_size, 3, in_pt_k)
+        self.module_1 = PointTransformerBlock(in_out_channel_size, in_out_channel_size//4,
+                                              coord_channel_size, in_pt_k)
 
         in_channel_size = in_out_channel_size
         self.encoder = nn.ModuleList()
@@ -58,7 +62,8 @@ class PointTransformerClassification(nn.Module):
             out_channel_size = out_channel_sizes[i]
             td_k = td_ks[i]
             pt_k = pt_ks[i]
-            self.encoder.append(TDPT(in_channel_size, out_channel_size, td_k, num_point, pt_k))
+            self.encoder.append(TDPT(in_channel_size, out_channel_size, 
+                                     coord_channel_size, td_k, num_point, pt_k))
             in_channel_size = out_channel_size
 
         decoder = []

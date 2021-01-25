@@ -66,11 +66,12 @@ class PointTransformerLayer(nn.Module):
         outputs_alpha_delta = outputs_alpha + outputs_delta
 
         # compute value with hadamard product
-        # print(outputs_rho.shape, outputs_alpha_delta.shape)
-        outputs_hp = outputs_rho * outputs_alpha_delta
-
+        # outputs_hp = outputs_rho * outputs_alpha_delta
         # aggregation outputs
-        outputs_aggregation = torch.sum(outputs_hp, dim=-1)
+        # outputs_aggregation = torch.sum(outputs_hp, dim=-1)
+        outputs_aggregation = torch.einsum('b c n k, b c n k -> b c n', outputs_rho, outputs_alpha_delta)
+        # print(outputs_aggregation == torch.einsum('b c n k, b c n k -> b c n', outputs_rho, outputs_alpha_delta))
+
 
         return outputs_aggregation
 
@@ -103,14 +104,14 @@ class PositionEncoding(nn.Module):
         return outputs
 
 class PointTransformerBlock(nn.Module):
-    def __init__(self, in_channel_size, coords_channel_size, k):
+    def __init__(self, in_channel_size, mid_channel_size, coords_channel_size, k):
         super().__init__()
 
-        self.linear1 = nn.Conv1d(in_channel_size, in_channel_size, 1)
-        self.linear2 = nn.Conv1d(in_channel_size, in_channel_size, 1)
+        self.linear1 = nn.Conv1d(in_channel_size, mid_channel_size, 1)
+        self.linear2 = nn.Conv1d(mid_channel_size, in_channel_size, 1)
 
         self.point_transforme = PointTransformerLayer(
-            in_channel_size, in_channel_size, coords_channel_size, k)
+            mid_channel_size, mid_channel_size, coords_channel_size, k)
 
     def forward(self, x, coords):
         identity = x

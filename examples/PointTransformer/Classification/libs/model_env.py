@@ -7,10 +7,8 @@ from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 
 # dataset
-from torch_point_cloud.datasets.PointNet.ModelNet import (
-    ModelNet40, 
-    rotation_and_jitter
-)
+from torch_point_cloud.datasets.PointNet2.ModelNet import ModelNet40
+from torch_point_cloud.datasets.PointNet2.ModelNet import MyModelNet40
 
 # model
 from torch_point_cloud.models.PointTransformer import PointTransformerClassification
@@ -20,9 +18,8 @@ def get_dataset(cfg):
     Get dataset.
     """
     if cfg.dataset.name == "modelnet40":
-        dataset = ModelNet40(
-            cfg.dataset.root,
-            cfg.dataset.num_points,
+        dataset = MyModelNet40(
+            cfg.dataset.root
         )
     else:
         raise NotImplementedError('Unknown cfg.dataset.name : ' + cfg.dataset.name)
@@ -33,7 +30,7 @@ def get_loader(cfg, dataset, shuffle=False, with_collate_fn=False):
     Split dataset into the batch size with DataLoader.
     """
     if with_collate_fn:
-        collate_fn = rotation_and_jitter
+        collate_fn = dataset.augment_batch_data
     else:
         collate_fn = None
 
@@ -125,7 +122,7 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     point_clouds = point_clouds.to(device, dtype=torch.float32)
     cls_labels = cls_labels.to(device, dtype=torch.long)
 
-    xyz = point_clouds
+    xyz = point_clouds[:, :3]
 
     # model forward processing
     pred_cls_labels = model(point_clouds, xyz)
