@@ -6,3 +6,10 @@
 ## How to use
 ### Training
 - coming soon
+
+問題があるとしたら、
+
+アルファ、 psi、phiに対する特徴量の割り当て方 (Conv1D使用、ここのネットワークは不明瞭)
+
+
+

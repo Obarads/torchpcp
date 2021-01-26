@@ -34,7 +34,7 @@ OUT_CHANNEL_SIZES = [64, 128, 256, 512]
 TD_KS = [16, 16, 16, 16] # KNN for transition down
 PT_KS = [16, 16, 16, 16] # KNN for point transformer
 
-OUT_OUT_CHANNEL_SIZES = [512, 256, 40]
+OUT_OUT_CHANNEL_SIZES = [512, "d", 256, 40]
 
 class PointTransformerClassification(nn.Module):
     def __init__(
@@ -51,7 +51,10 @@ class PointTransformerClassification(nn.Module):
     ):
         super().__init__()
 
-        self.input_mlp = PointwiseConv1D(in_channel_size, in_out_channel_size)
+        self.input_mlp = nn.Sequential(
+            PointwiseConv1D(in_channel_size, in_out_channel_size),
+            # PointwiseConv1D(in_out_channel_size, in_out_channel_size)
+        )
         self.module_1 = PointTransformerBlock(in_out_channel_size, in_out_channel_size//4,
                                               coord_channel_size, in_pt_k)
 
@@ -69,13 +72,18 @@ class PointTransformerClassification(nn.Module):
         decoder = []
         for i in range(len(out_out_channel_sizes)):
             out_out_channel_size = out_out_channel_sizes[i]
-            if i == len(out_out_channel_sizes)-1:
-                layers = nn.Linear(in_channel_size, out_out_channel_size)
+            if isinstance(out_out_channel_size, int):
+                if i == len(out_out_channel_sizes)-1:
+                    layers = nn.Linear(in_channel_size, out_out_channel_size)
+                else:
+                    layers = Linear(in_channel_size, out_out_channel_size)
+                in_channel_size = out_out_channel_size
+            elif out_out_channel_size == "d":
+                layers = nn.Dropout()
             else:
-                layers = Linear(in_channel_size, out_out_channel_size)
+                raise NotImplementedError()
             decoder.append(layers)
-            in_channel_size = out_out_channel_size
-        
+
         self.decoder = nn.Sequential(*decoder)
 
     def forward(self, x, coords):

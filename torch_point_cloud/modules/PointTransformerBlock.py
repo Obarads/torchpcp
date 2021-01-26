@@ -22,9 +22,9 @@ class PointTransformerLayer(nn.Module):
 
         #  gamma (mapping function)
         self.mlp_gamma = nn.Sequential(
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1)),
+            nn.Conv2d(out_channel_size, out_channel_size*3, (1,1)),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1))
+            nn.Conv2d(out_channel_size*3, out_channel_size, (1,1))
         )
 
         # rho (normalization function)
@@ -47,7 +47,8 @@ class PointTransformerLayer(nn.Module):
         outputs_alpha = self.linear_alpha(features)
 
         # Get space between features of points.
-        knn_indices, _ = k_nearest_neighbors(features, features, self.k)
+        # knn_indices, _ = k_nearest_neighbors(features, features, self.k)
+        knn_indices, _ = k_nearest_neighbors(coords, coords, self.k)
         knn_outputs_psi = index2points(outputs_psi, knn_indices)
         features_space = localize(outputs_phi, knn_outputs_psi) * -1
 
