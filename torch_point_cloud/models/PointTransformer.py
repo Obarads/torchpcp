@@ -34,7 +34,7 @@ OUT_CHANNEL_SIZES = [64, 128, 256, 512]
 TD_KS = [16, 16, 16, 16] # KNN for transition down
 PT_KS = [16, 16, 16, 16] # KNN for point transformer
 
-OUT_OUT_CHANNEL_SIZES = [512, "d", 256, 40]
+OUT_OUT_CHANNEL_SIZES = [512, 256, 40]
 
 class PointTransformerClassification(nn.Module):
     def __init__(

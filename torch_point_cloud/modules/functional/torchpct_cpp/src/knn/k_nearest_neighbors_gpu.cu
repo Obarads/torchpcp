@@ -1,20 +1,5 @@
 #include "../cuda_utils.cuh"
 
-/*
-  Function: three nearest neighbors
-  Args:
-    b   : batch size
-    n   : number of points in point clouds
-    m   : number of query centers
-    points_coords : coordinates of points, FloatTensor[b, 3, n]
-    centers_coords: coordinates of centers, FloatTensor[b, 3, m]
-    weights       : weights of nearest 3 centers to the point,
-                    FloatTensor[b, 3, n]
-    indices       : indices of nearest 3 centers to the point,
-                    IntTensor[b, 3, n]
-*/
-
-
 __global__ void k_nearest_neighbors_kernel(
     int b, int c, int n, int m, int k,
     const float *__restrict__ points_coords,

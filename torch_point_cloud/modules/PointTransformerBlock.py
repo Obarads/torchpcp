@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 from torch_point_cloud.modules.functional.nns import k_nearest_neighbors
 from torch_point_cloud.modules.functional.other import index2points, localize
@@ -22,9 +23,9 @@ class PointTransformerLayer(nn.Module):
 
         #  gamma (mapping function)
         self.mlp_gamma = nn.Sequential(
-            nn.Conv2d(out_channel_size, out_channel_size*3, (1,1)),
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1)),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size*3, out_channel_size, (1,1))
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1))
         )
 
         # rho (normalization function)
@@ -43,8 +44,11 @@ class PointTransformerLayer(nn.Module):
         """
 
         outputs_phi = self.linear_phi(features)
+        # outputs_phi = F.relu(outputs_phi)
         outputs_psi = self.linear_psi(features)
+        # outputs_psi = F.relu(outputs_psi)
         outputs_alpha = self.linear_alpha(features)
+        # outputs_alpha = F.relu(outputs_alpha)
 
         # Get space between features of points.
         # knn_indices, _ = k_nearest_neighbors(features, features, self.k)

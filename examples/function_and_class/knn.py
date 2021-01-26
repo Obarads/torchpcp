@@ -14,7 +14,7 @@ import torch_points_kernels as tpk
 # torch_point_cloud pacakage
 from torch_point_cloud.modules.functional import furthest_point_sample, index2points
 from torch_point_cloud.modules.functional import py_k_nearest_neighbors
-from torch_point_cloud.modules.functional import k_nearest_neighbors as knn
+from torch_point_cloud.modules.functional.nns import k_nearest_neighbors as knn
 from torch_point_cloud.utils.monitor import timecheck
 from torch_point_cloud.utils import pytorch_tools
 
