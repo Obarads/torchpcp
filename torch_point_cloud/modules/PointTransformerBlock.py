@@ -15,11 +15,13 @@ class PointTransformerLayer(nn.Module):
     def __init__(self, in_channel_size, out_channel_size, coords_channel_size, k):
         super().__init__()
         # phi (pointwise feature transformations)
-        self.linear_phi = nn.Conv1d(in_channel_size, out_channel_size, 1)
-        # psi (pointwise feature transformations)
-        self.linear_psi = nn.Conv1d(in_channel_size, out_channel_size, 1)
-        # alpha (pointwise feature transformation)
-        self.linear_alpha = nn.Conv1d(in_channel_size, out_channel_size, 1)
+        # self.linear_phi = nn.Conv1d(in_channel_size, out_channel_size, 1)
+        # # psi (pointwise feature transformations)
+        # self.linear_psi = nn.Conv1d(in_channel_size, out_channel_size, 1)
+        # # alpha (pointwise feature transformation)
+        # self.linear_alpha = nn.Conv1d(in_channel_size, out_channel_size, 1)
+
+        self.input_linear = nn.Conv1d(in_channel_size, out_channel_size*3, 1)
 
         #  gamma (mapping function)
         self.mlp_gamma = nn.Sequential(
@@ -43,18 +45,22 @@ class PointTransformerLayer(nn.Module):
         features: torch.tensor (B, C, N)
         """
 
-        outputs_phi = self.linear_phi(features)
-        # outputs_phi = F.relu(outputs_phi)
-        outputs_psi = self.linear_psi(features)
-        # outputs_psi = F.relu(outputs_psi)
-        outputs_alpha = self.linear_alpha(features)
-        # outputs_alpha = F.relu(outputs_alpha)
+        # outputs_phi = self.linear_phi(features)
+        # # outputs_phi = F.relu(outputs_phi)
+        # outputs_psi = self.linear_psi(features)
+        # # outputs_psi = F.relu(outputs_psi)
+        # outputs_alpha = self.linear_alpha(features)
+        # # outputs_alpha = F.relu(outputs_alpha)
+
+        outputs_phi, outputs_psi, outputs_alpha = torch.chunk(
+            self.input_linear(features), chunks=3, dim=1)
 
         # Get space between features of points.
         # knn_indices, _ = k_nearest_neighbors(features, features, self.k)
         knn_indices, _ = k_nearest_neighbors(coords, coords, self.k)
         knn_outputs_psi = index2points(outputs_psi, knn_indices)
         features_space = localize(outputs_phi, knn_outputs_psi) * -1
+        # features_space = localize(outputs_phi, knn_outputs_psi)
 
         # Get delta.
         outputs_delta = self.pe_delta(coords, knn_indices)
@@ -67,14 +73,15 @@ class PointTransformerLayer(nn.Module):
 
         # \alpha(x_j) + \delta
         # print(outputs_alpha.shape, outputs_delta.shape)
-        outputs_alpha = repeat(outputs_alpha, 'b c n -> b c n k', k=self.k) # really?????
+        # outputs_alpha = repeat(outputs_alpha, 'b c n -> b c n k', k=self.k) # really????? <- no
+        outputs_alpha = index2points(outputs_alpha, knn_indices)
         outputs_alpha_delta = outputs_alpha + outputs_delta
 
         # compute value with hadamard product
-        # outputs_hp = outputs_rho * outputs_alpha_delta
+        outputs_hp = outputs_rho * outputs_alpha_delta
         # aggregation outputs
-        # outputs_aggregation = torch.sum(outputs_hp, dim=-1)
-        outputs_aggregation = torch.einsum('b c n k, b c n k -> b c n', outputs_rho, outputs_alpha_delta)
+        outputs_aggregation = torch.sum(outputs_hp, dim=-1)
+        # outputs_aggregation = torch.einsum('b c n k, b c n k -> b c n', outputs_rho, outputs_alpha_delta)
         # print(outputs_aggregation == torch.einsum('b c n k, b c n k -> b c n', outputs_rho, outputs_alpha_delta))
 
 
@@ -102,6 +109,7 @@ class PositionEncoding(nn.Module):
         # knn_indices = k_nearest_neighbors(coords, coords, self.k)
         knn_coords = index2points(coords, knn_indices)
         coords_space = localize(coords, knn_coords) * -1
+        # coords_space = localize(coords, knn_coords)
 
         # Use theta.
         outputs = self.mlp_theta(coords_space)

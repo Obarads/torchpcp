@@ -11,4 +11,4 @@
     |Impl.|mAcc|oAcc|
     |-----|----|----|
     |[Original (paper only)](https://arxiv.org/abs/2012.09164)|90.6|93.7|
-    |Model of this repo.|yet|yet|
+    |Model of this repo.|87.40|90.19|

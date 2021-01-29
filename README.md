@@ -76,3 +76,9 @@ The Componets of this repository is as following.
   - [Hugues Thomas, Charles R. Qi, Jean-Emmanuel Deschaud, Beatriz Marcotegui, François Goulette, and Leonidas J. Guibas. KPConv: Flexible and Deformable Convolution for Point Clouds. In ICCV, 2019.](https://arxiv.org/abs/1904.08889)
 - Original implementation:
   - [HuguesTHOMAS. KPConv-PyTorch. In Github repository. (https://github.com/HuguesTHOMAS/KPConv-PyTorch) (access:2020/11/21)](https://github.com/HuguesTHOMAS/KPConv-PyTorch)
+### Point Transformer
+- [Model of this repository](examples/PointTransformer/README.md)
+- Paper:
+  - [Hengshuang Zhao, Li Jiang, Jiaya Jia, Philip Torr, Vladlen Koltun. Point Transformer. arxiv.](https://arxiv.org/abs/2012.09164)
+
+
