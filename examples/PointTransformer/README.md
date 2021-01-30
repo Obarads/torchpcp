@@ -4,6 +4,15 @@
 ## How to use
 - I separate training and test codes into each task folder. Please find below, folder links of each task.
 
+## Note (Paper info.)
+### Point Transformer layer
+- \gamma : an MLP with two linear layers and one ReLU nonlinearity.
+- \theta : an MLP with two linear layers and one ReLU nonlinearity.
+
+### Transition down
+- k : 16
+- mlp : Linear transformation, bath normalization and ReLU.
+
 ## Links
 ### Classification
 - [code](./Classification/README.md)

@@ -7,27 +7,21 @@ from torch_point_cloud.modules.functional.other import index2points, localize
 from torch_point_cloud.modules.functional.sampling import furthest_point_sampling
 # from torch_point_cloud.modules.Layer import PointwiseConv2D
 
-from einops import repeat
+# from einops import repeat
+
+from torch_point_cloud.utils.pytorch_tools import t2n
+from torch_point_cloud.utils.io.ply import write_pc
 
 class PointTransformerLayer(nn.Module):
-    """
-    """
     def __init__(self, in_channel_size, out_channel_size, coords_channel_size, k):
         super().__init__()
-        # phi (pointwise feature transformations)
-        # self.linear_phi = nn.Conv1d(in_channel_size, out_channel_size, 1)
-        # # psi (pointwise feature transformations)
-        # self.linear_psi = nn.Conv1d(in_channel_size, out_channel_size, 1)
-        # # alpha (pointwise feature transformation)
-        # self.linear_alpha = nn.Conv1d(in_channel_size, out_channel_size, 1)
-
-        self.input_linear = nn.Conv1d(in_channel_size, out_channel_size*3, 1)
+        self.input_linear = nn.Conv1d(in_channel_size, out_channel_size*3, 1, bias=False)
 
         #  gamma (mapping function)
         self.mlp_gamma = nn.Sequential(
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1)),
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1))
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False)
         )
 
         # rho (normalization function)
@@ -43,47 +37,33 @@ class PointTransformerLayer(nn.Module):
         Parameters
         ----------
         features: torch.tensor (B, C, N)
+        coords: torch.tensor (B, 3, N)
         """
 
-        # outputs_phi = self.linear_phi(features)
-        # # outputs_phi = F.relu(outputs_phi)
-        # outputs_psi = self.linear_psi(features)
-        # # outputs_psi = F.relu(outputs_psi)
-        # outputs_alpha = self.linear_alpha(features)
-        # # outputs_alpha = F.relu(outputs_alpha)
-
-        outputs_phi, outputs_psi, outputs_alpha = torch.chunk(
-            self.input_linear(features), chunks=3, dim=1)
-
-        # Get space between features of points.
-        # knn_indices, _ = k_nearest_neighbors(features, features, self.k)
-        knn_indices, _ = k_nearest_neighbors(coords, coords, self.k)
-        knn_outputs_psi = index2points(outputs_psi, knn_indices)
-        features_space = localize(outputs_phi, knn_outputs_psi) * -1
-        # features_space = localize(outputs_phi, knn_outputs_psi)
+        # Get knn indexes.
+        knn_indices, _ = k_nearest_neighbors(coords, coords, self.k) # get (B, N, k)
 
         # Get delta.
-        outputs_delta = self.pe_delta(coords, knn_indices)
+        outputs_delta = self.pe_delta(coords, knn_indices) # get (B, C, N, k)
 
-        # Get gamma outputs.
-        outputs_gamma = self.mlp_gamma(features_space + outputs_delta)
+        # Get pointwise feature.
+        outputs_phi, outputs_psi, outputs_alpha = torch.chunk(
+            self.input_linear(features), chunks=3, dim=1) # to (B, C, N) x 3
 
-        # Get rho outputs.
+        # Get weights.
+        outputs_psi = index2points(outputs_psi, knn_indices) # to (B, C, N, k)
+        inputs_gamma = localize(outputs_phi, outputs_psi) * -1 + outputs_delta # get (B, C, N, k)
+        outputs_gamma = self.mlp_gamma(inputs_gamma)
         outputs_rho = self.normalization_rho(outputs_gamma)
 
         # \alpha(x_j) + \delta
-        # print(outputs_alpha.shape, outputs_delta.shape)
-        # outputs_alpha = repeat(outputs_alpha, 'b c n -> b c n k', k=self.k) # really????? <- no
-        outputs_alpha = index2points(outputs_alpha, knn_indices)
+        outputs_alpha = index2points(outputs_alpha, knn_indices) # to (B, C, N, k)
         outputs_alpha_delta = outputs_alpha + outputs_delta
+        # outputs_alpha_delta = outputs_alpha
 
-        # compute value with hadamard product
+        # compute value with hadamard product and aggregation
         outputs_hp = outputs_rho * outputs_alpha_delta
-        # aggregation outputs
-        outputs_aggregation = torch.sum(outputs_hp, dim=-1)
-        # outputs_aggregation = torch.einsum('b c n k, b c n k -> b c n', outputs_rho, outputs_alpha_delta)
-        # print(outputs_aggregation == torch.einsum('b c n k, b c n k -> b c n', outputs_rho, outputs_alpha_delta))
-
+        outputs_aggregation = torch.sum(outputs_hp, dim=-1)  # get (B, C, N)
 
         return outputs_aggregation
 
@@ -92,9 +72,9 @@ class PositionEncoding(nn.Module):
         super().__init__()
         # theta (encoding function)
         self.mlp_theta = nn.Sequential(
-            nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
+            nn.Conv2d(in_channel_size, out_channel_size, (1,1), bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1))
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False)
         )
         # self.k = k
 
@@ -106,10 +86,8 @@ class PositionEncoding(nn.Module):
         """
 
         # Get spaces between points.
-        # knn_indices = k_nearest_neighbors(coords, coords, self.k)
         knn_coords = index2points(coords, knn_indices)
         coords_space = localize(coords, knn_coords) * -1
-        # coords_space = localize(coords, knn_coords)
 
         # Use theta.
         outputs = self.mlp_theta(coords_space)
@@ -120,8 +98,8 @@ class PointTransformerBlock(nn.Module):
     def __init__(self, in_channel_size, mid_channel_size, coords_channel_size, k):
         super().__init__()
 
-        self.linear1 = nn.Conv1d(in_channel_size, mid_channel_size, 1)
-        self.linear2 = nn.Conv1d(mid_channel_size, in_channel_size, 1)
+        self.linear1 = nn.Conv1d(in_channel_size, mid_channel_size, 1, bias=False)
+        self.linear2 = nn.Conv1d(mid_channel_size, in_channel_size, 1, bias=False)
 
         self.point_transforme = PointTransformerLayer(
             mid_channel_size, mid_channel_size, coords_channel_size, k)
@@ -129,15 +107,16 @@ class PointTransformerBlock(nn.Module):
     def forward(self, x, coords):
         identity = x
         x = self.linear1(x)
-        x = self.point_transforme(x, coords)
-        y = self.linear2(x) + identity
+        # x = self.point_transforme(x, coords)
+        x = self.linear2(x)
+        y = x + identity
         return y
 
 class TransitionDown(nn.Module):
     def __init__(self, in_channel_size, out_channel_size, k, num_samples):
         super().__init__()
         self.mlp = nn.Sequential(
-            nn.Conv2d(in_channel_size, out_channel_size, (1,1)),
+            nn.Conv2d(in_channel_size, out_channel_size, (1,1), bias=False),
             nn.BatchNorm2d(out_channel_size),
             nn.ReLU(inplace=True)
         )
@@ -148,7 +127,6 @@ class TransitionDown(nn.Module):
     def forward(self, x, coords):
         # Get p and x of fps indices
         fps_indices = furthest_point_sampling(coords, self.num_samples)
-        # fps_x = index2points(x, fps_indices)
         fps_coords = index2points(coords, fps_indices) # p
 
         # Get knn indices

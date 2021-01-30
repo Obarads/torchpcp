@@ -13,13 +13,16 @@ class TDPT(nn.Module):
         super().__init__()
 
         self.td = TransitionDown(in_channel_size, out_channel_size, td_k, num_sampling)
-        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//4, 
+        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//BOTTLENECK_RATIO, 
                                         coord_channel_size, pt_k)
 
     def forward(self, x, p1):
         x, p2 = self.td(x, p1)
-        y = self.pt(x, p2)
+        # y = self.pt(x, p2)
+        y = x
         return y, p2
+
+BOTTLENECK_RATIO = 2
 
 IN_CHANNEL_SIZE = 6
 IN_OUT_CHANNEL_SIZE = 32
@@ -34,7 +37,7 @@ OUT_CHANNEL_SIZES = [64, 128, 256, 512]
 TD_KS = [16, 16, 16, 16] # KNN for transition down
 PT_KS = [16, 16, 16, 16] # KNN for point transformer
 
-OUT_OUT_CHANNEL_SIZES = [512, 256, 40]
+OUT_OUT_CHANNEL_SIZES = [512, "d", 256, 40]
 
 class PointTransformerClassification(nn.Module):
     def __init__(
@@ -52,10 +55,10 @@ class PointTransformerClassification(nn.Module):
         super().__init__()
 
         self.input_mlp = nn.Sequential(
-            PointwiseConv1D(in_channel_size, in_out_channel_size),
+            PointwiseConv1D(in_channel_size, in_out_channel_size, conv_args={"bias": False}),
             # PointwiseConv1D(in_out_channel_size, in_out_channel_size)
         )
-        self.module_1 = PointTransformerBlock(in_out_channel_size, in_out_channel_size//4,
+        self.module_1 = PointTransformerBlock(in_out_channel_size, in_out_channel_size//BOTTLENECK_RATIO,
                                               coord_channel_size, in_pt_k)
 
         in_channel_size = in_out_channel_size
@@ -88,7 +91,7 @@ class PointTransformerClassification(nn.Module):
 
     def forward(self, x, coords):
         x = self.input_mlp(x)
-        x = self.module_1(x, coords)
+        # x = self.module_1(x, coords)
 
         for enc in self.encoder:
             x, coords = enc(x, coords)

@@ -12,6 +12,8 @@ from torch_point_cloud.datasets.PointNet2.ModelNet import MyModelNet40
 
 # model
 from torch_point_cloud.models.PointTransformer import PointTransformerClassification
+from torch_point_cloud.utils.io.ply import write_pc
+from torch_point_cloud.utils import pytorch_tools
 
 def get_dataset(cfg):
     """
@@ -123,6 +125,9 @@ def processing(model, criterion, data, meters, device, return_outputs=False):
     cls_labels = cls_labels.to(device, dtype=torch.long)
 
     xyz = point_clouds[:, :3]
+    # for i, xs in enumerate(xyz):
+    #     p = pytorch_tools.t2n(xs.transpose(0,1))
+    #     write_pc("{}.ply".format(i), p)
 
     # model forward processing
     pred_cls_labels = model(point_clouds, xyz)
