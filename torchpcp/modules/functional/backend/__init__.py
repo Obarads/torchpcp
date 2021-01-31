@@ -1,7 +1,7 @@
 import os
 DEBUG = os.environ.get("TORCHPCP_DEBUG")
 
-if DEBUG is True:
+if DEBUG == "true":
     # for debug
     from torch.utils.cpp_extension import load
     from setup import sources
