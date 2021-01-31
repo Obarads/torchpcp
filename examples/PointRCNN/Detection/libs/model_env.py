@@ -9,15 +9,15 @@ from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 
 # dataset
-from torch_point_cloud.datasets.PointRCNN.KITTI import KittiRCNNDataset
+from torchpcp.datasets.PointRCNN.KITTI import KittiRCNNDataset
 
 # model
-from torch_point_cloud.models.PointRCNN import PointRCNN
+from torchpcp.models.PointRCNN import PointRCNN
 
 # configs
-from torch_point_cloud.configs.PointRCNN.config import cfg as ocfg
+from torchpcp.configs.PointRCNN.config import cfg as ocfg
 
-from torch_point_cloud.utils.monitor import timecheck
+from torchpcp.utils.monitor import timecheck
 
 from libs.losses import Criterion
 

@@ -11,8 +11,8 @@ The Componets of this repository is as following.
 - `examples`: include scripts to train or test implemented models.
   - Test results of models are shown on README.md (ex: [examples/PointNet/README.md](examples/PointNet/README.md)) in the model folder.
     - Please look at a list in ["Evaluated model" section](#evaluated-model) when checking evaluated models.
-  - Example codes work, even if you don't install torch_point_cloud package using [setup.py](setup.py).
-- `torch_point_cloud`: include model, module, and utils.
+  - Example codes work by adding `TORCHPCP_DEBUG=true` to environment variable, even if you don't install torchpcp package using [setup.py](setup.py).
+- `torchpcp`: include model, module, and utils.
   - Docstring guide of this repo follows [numpy](https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard).
 
 ## Dependencies
@@ -22,6 +22,11 @@ The Componets of this repository is as following.
   - If you have not installed this software, Please show [here](https://www.claudiokuenzler.com/blog/756/install-newer-ninja-build-tools-ubuntu-14.04-trusty).
 - (optional) [Hydra](https://github.com/facebookresearch/hydra) (1.0 or later)
 - (optional) [tensorboardX](https://github.com/lanpa/tensorboardX) (2.1 or later)
+
+## Install
+```
+python setup.py install
+```
 
 ## Execution environment
 - Docker: nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04

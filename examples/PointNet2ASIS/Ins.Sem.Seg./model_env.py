@@ -7,13 +7,13 @@ from torch import nn
 from torch.optim import lr_scheduler
 
 # dataset
-from torch_point_cloud.datasets.ASIS import S3DIS
+from torchpcp.datasets.ASIS import S3DIS
 
 # model
-from torch_point_cloud.models.PointNet2ASIS import PointNet2ASIS
+from torchpcp.models.PointNet2ASIS import PointNet2ASIS
 
 # loss
-from torch_point_cloud.losses.DiscriminativeLoss import DiscriminativeLoss
+from torchpcp.losses.DiscriminativeLoss import DiscriminativeLoss
 
 def get_dataset(cfg):
     if cfg.dataset.name == "s3dis":

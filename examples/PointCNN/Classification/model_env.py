@@ -4,13 +4,13 @@ import torch
 from torch import optim
 from torch import nn
 # from torch.optim import lr_scheduler
-from torch_point_cloud.schedulers.tf_scheduler import ExponentialDecay
+from torchpcp.schedulers.tf_scheduler import ExponentialDecay
 
 # dataset
-from torch_point_cloud.datasets.PointCNN import ModelNet
+from torchpcp.datasets.PointCNN import ModelNet
 
 # model
-from torch_point_cloud.models.PointCNN import PointCNNClassification
+from torchpcp.models.PointCNN import PointCNNClassification
 
 def get_dataset(cfg):
     if cfg.dataset.name == "modelnet40":

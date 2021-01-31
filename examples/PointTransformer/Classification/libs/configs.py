@@ -35,7 +35,7 @@ class General:
 
 @dataclass
 class Model:
-    # from torch_point_cloud.models.PointNet import PointNetClassification for ModelNet40
+    # from torchpcp.models.PointNet import PointNetClassification for ModelNet40
     output_dim: int = 40
     resume: str = MISSING
 
@@ -63,7 +63,7 @@ class Loader:
     # loader cpu
     num_workers: int = 8
     # batch size
-    batch_size: int = 32
+    batch_size: int = 128
     # data shuffle
     # shuffle: bool = True
 

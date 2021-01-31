@@ -1,9 +1,9 @@
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.Layer import PointwiseConv2D, DepthwiseSeparableConv2D, LinearModule
-from torch_point_cloud.modules.functional import sampling
-from torch_point_cloud.modules.XTransformation import XTransform
+from torchpcp.modules.Layer import PointwiseConv2D, DepthwiseSeparableConv2D, LinearModule
+from torchpcp.modules.functional import sampling
+from torchpcp.modules.XTransformation import XTransform
 
 # class Linear(nn.Module):
 #     def __init__(self, in_channel, out_channel, act=nn.ReLU()):

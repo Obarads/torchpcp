@@ -5,8 +5,8 @@ sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "../../../"))) # for pack
 
 import argparse
 
-from torch_point_cloud.datasets.ASIS.S3DIS import Preprocessing
-from torch_point_cloud.utils.setting import make_folders
+from torchpcp.datasets.ASIS.S3DIS import Preprocessing
+from torchpcp.utils.setting import make_folders
 
 def main():
     parser = argparse.ArgumentParser(description="create a dataset with h5")

@@ -6,14 +6,14 @@ from torch import nn
 from torch.optim import lr_scheduler
 
 # dataset
-from torch_point_cloud.datasets.PointNet.ModelNet import (
+from torchpcp.datasets.PointNet.ModelNet import (
     ModelNet40, rotation_and_jitter)
 
 # model
-from torch_point_cloud.models.PointNet import PointNetClassification
+from torchpcp.models.PointNet import PointNetClassification
 
 # loss
-from torch_point_cloud.losses.feature_transform_regularizer import (
+from torchpcp.losses.feature_transform_regularizer import (
     feature_transform_regularizer)
 
 def get_dataset(cfg):

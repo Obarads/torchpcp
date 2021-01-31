@@ -35,7 +35,7 @@ class General:
 
 @dataclass
 class Model:
-    # from torch_point_cloud.models.PointNet import PointNetClassification for ModelNet40
+    # from torchpcp.models.PointNet import PointNetClassification for ModelNet40
     output_dim: int = 40
     use_input_transform: bool = True
     use_feature_transform: bool = True

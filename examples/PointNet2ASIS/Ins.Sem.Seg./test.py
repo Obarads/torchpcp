@@ -13,14 +13,14 @@ from scipy import stats
 import torch
 
 # dataset
-from torch_point_cloud.datasets.ASIS.utils.test_utils import BlockMerging
-from torch_point_cloud.datasets.ASIS.S3DIS import create_batch_instance_information
+from torchpcp.datasets.ASIS.utils.test_utils import BlockMerging
+from torchpcp.datasets.ASIS.S3DIS import create_batch_instance_information
 
 # tools
-from torch_point_cloud.utils.setting import (PytorchTools, get_configs,
+from torchpcp.utils.setting import (PytorchTools, get_configs,
                                              make_folders, fix_path_in_configs)
-from torch_point_cloud.utils.metrics import MultiAssessmentMeter, LossMeter
-from torch_point_cloud.utils import converter
+from torchpcp.utils.metrics import MultiAssessmentMeter, LossMeter
+from torchpcp.utils import converter
 
 # env
 from model_env import processing, cluster

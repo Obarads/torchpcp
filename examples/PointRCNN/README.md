@@ -33,17 +33,17 @@
     |Model of this repo.|yet|yet|yet|yet|
 
 - add libs (base: original PointRCNN, https://github.com/sshaoshuai/PointRCNN)
-  - torch_point_cloud/modules/functional/kitti_utils.py
-  - torch_point_cloud/modules/functional/bbox.py
-  - torch_point_cloud/models/PointRCNN.py
-  - torch_point_cloud/datasets/PointRCNN
-  - torch_point_cloud/modules/ProposalLayer.py
-  - torch_point_cloud/modules/rcnn_net.py
-  - torch_point_cloud/modules/RPN.py
-  - torch_point_cloud/modules/functional/iou3d_utils.py
-  - torch_point_cloud/modules/functional/object3d.py
-  - torch_point_cloud/modules/functional/roipool3d_utils.py
-  - torch_point_cloud/modules/functional/calibration.py
+  - torchpcp/modules/functional/kitti_utils.py
+  - torchpcp/modules/functional/bbox.py
+  - torchpcp/models/PointRCNN.py
+  - torchpcp/datasets/PointRCNN
+  - torchpcp/modules/ProposalLayer.py
+  - torchpcp/modules/rcnn_net.py
+  - torchpcp/modules/RPN.py
+  - torchpcp/modules/functional/iou3d_utils.py
+  - torchpcp/modules/functional/object3d.py
+  - torchpcp/modules/functional/roipool3d_utils.py
+  - torchpcp/modules/functional/calibration.py
 
 
 

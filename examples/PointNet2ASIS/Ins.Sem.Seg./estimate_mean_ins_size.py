@@ -10,11 +10,11 @@ import numpy as np
 from scipy import stats
 
 # dataset tools
-from torch_point_cloud.datasets.ASIS.utils import provider
-from torch_point_cloud.datasets.ASIS.S3DIS import get_block_paths
+from torchpcp.datasets.ASIS.utils import provider
+from torchpcp.datasets.ASIS.S3DIS import get_block_paths
 
 # tools
-from torch_point_cloud.utils.setting import PytorchTools
+from torchpcp.utils.setting import PytorchTools
 
 @hydra.main(config_name=CONFIG_PATH)
 def estimate(cfg:omegaconf.DictConfig):

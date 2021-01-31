@@ -9,8 +9,8 @@ import h5py
 import torch
 from torch.utils.data import Dataset
 
-from torch_point_cloud.datasets.ModelNet.utils import provider
-from torch_point_cloud.utils.converter import sparseLabel_to_denseLabel
+from torchpcp.datasets.ModelNet.utils import provider
+from torchpcp.utils.converter import sparseLabel_to_denseLabel
 
 class SimpleObjectDataset(Dataset):
     def __init__(self, num_points=1024, file_path=MODELNET40_DATAPATH):

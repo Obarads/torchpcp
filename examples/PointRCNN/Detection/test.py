@@ -8,8 +8,8 @@ import hydra
 import torch
 
 # tools
-from torch_point_cloud.utils import monitor, pytorch_tools
-from torch_point_cloud.utils.metrics import MultiAssessmentMeter, LossMeter
+from torchpcp.utils import monitor, pytorch_tools
+from torchpcp.utils.metrics import MultiAssessmentMeter, LossMeter
 
 # env
 from libs.model_env import processing

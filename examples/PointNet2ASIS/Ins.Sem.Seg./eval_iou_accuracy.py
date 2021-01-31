@@ -217,8 +217,8 @@ for i in range(NUM_CLASSES):
 # log_string('Semantic Segmentation IoU: {}'.format(iou_list))
 # log_string('Semantic Segmentation mIoU: {}'.format(1.*sum(iou_list)/NUM_CLASSES))
 
-from torch_point_cloud.datasets.ASIS.utils.indoor3d_util import g_classes
-from torch_point_cloud.utils.converter import dict2mdtables
+from torchpcp.datasets.ASIS.utils.indoor3d_util import g_classes
+from torchpcp.utils.converter import dict2mdtables
 
 def digit_format(data_list):
     return np.round(data_list, 4)

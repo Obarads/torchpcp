@@ -2,17 +2,17 @@ import torch
 import numpy as np
 
 from libs import tpcpath
-from torch_point_cloud.utils import pytorch_tools
+from torchpcp.utils import pytorch_tools
 # pytorch_tools.set_seed(0)
 device = pytorch_tools.select_device("cuda")
 
 from libs.dataset import SimpleSceneDataset
 from torch.utils.data import DataLoader
-from torch_point_cloud.modules.functional.sampling import furthest_point_sampling
-from torch_point_cloud.modules.functional.nns import py_k_nearest_neighbors
-from torch_point_cloud.modules.functional.nns import k_nearest_neighbors as knn
-from torch_point_cloud.utils.monitor import timecheck
-from torch_point_cloud.modules.functional.other import gather, index2points
+from torchpcp.modules.functional.sampling import furthest_point_sampling
+from torchpcp.modules.functional.nns import py_k_nearest_neighbors
+from torchpcp.modules.functional.nns import k_nearest_neighbors as knn
+from torchpcp.utils.monitor import timecheck
+from torchpcp.modules.functional.other import gather, index2points
 
 # PointRCNN impl. from https://github.com/sshaoshuai/PointRCNN
 import pointnet2_cuda as pointnet2

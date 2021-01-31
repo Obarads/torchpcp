@@ -12,13 +12,13 @@ import torch
 from torch.utils.data import DataLoader
 
 # dataset
-from torch_point_cloud.datasets.PointNet.ModelNet import rotation_and_jitter
+from torchpcp.datasets.PointNet.ModelNet import rotation_and_jitter
 
 # tools
-from torch_point_cloud.utils.setting import (PytorchTools, get_configs,
+from torchpcp.utils.setting import (PytorchTools, get_configs,
                                              make_folders)
-from torch_point_cloud.utils.metrics import MultiAssessmentMeter, LossMeter
-from torch_point_cloud.utils.converter import dict2tensorboard
+from torchpcp.utils.metrics import MultiAssessmentMeter, LossMeter
+from torchpcp.utils.converter import dict2tensorboard
 
 # env
 from model_env import processing, save_params

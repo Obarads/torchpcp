@@ -1,11 +1,11 @@
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.Layer import Conv2DModule
-from torch_point_cloud.modules.functional import sampling
+from torchpcp.modules.Layer import Conv2DModule
+from torchpcp.modules.functional import sampling
 
-from torch_point_cloud.modules.Layer import Conv2D, PointwiseConv2D
-from torch_point_cloud.modules.Layer import DepthwiseConv2D
+from torchpcp.modules.Layer import Conv2D, PointwiseConv2D
+from torchpcp.modules.Layer import DepthwiseConv2D
 
 class XTransform(nn.Module):
     def __init__(self, in_channel, k):

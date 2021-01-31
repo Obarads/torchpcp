@@ -5,11 +5,11 @@ from torch import nn
 from torch.nn import functional as F
 
 # configs
-from torch_point_cloud.configs.PointRCNN.config import cfg
+from torchpcp.configs.PointRCNN.config import cfg
 
 # losses
-from torch_point_cloud.losses.FocalLoss import FocalLoss
-from torch_point_cloud.losses.DiceLoss import DiceLoss
+from torchpcp.losses.FocalLoss import FocalLoss
+from torchpcp.losses.DiceLoss import DiceLoss
 
 
 class Criterion(nn.Module):

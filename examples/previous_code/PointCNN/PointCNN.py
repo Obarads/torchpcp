@@ -3,9 +3,9 @@ import random
 import torch
 from torch import nn
 
-from torch_point_cloud.modules.XConv import XConv
-from torch_point_cloud.modules.Layer import LinearModule, PointwiseConv2D, PointwiseConv1D
-from torch_point_cloud.modules.functional import sampling
+from torchpcp.modules.XConv import XConv
+from torchpcp.modules.Layer import LinearModule, PointwiseConv2D, PointwiseConv1D
+from torchpcp.modules.functional import sampling
 
 # class Linear(nn.Module):
 #     def __init__(self, in_channel, out_channel, act=nn.ReLU(), with_bn=True):

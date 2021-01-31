@@ -14,9 +14,9 @@ import torch
 from torch.utils.data import DataLoader
 
 # tools
-from torch_point_cloud.utils.setting import PytorchTools, fix_path_in_configs
-from torch_point_cloud.utils.metrics import MultiAssessmentMeter, LossMeter
-from torch_point_cloud.utils.converter import dict2tensorboard
+from torchpcp.utils.setting import PytorchTools, fix_path_in_configs
+from torchpcp.utils.metrics import MultiAssessmentMeter, LossMeter
+from torchpcp.utils.converter import dict2tensorboard
 
 # env
 from model_env import processing, save_params

@@ -8,8 +8,8 @@ import torch
 # add path
 import libs.tpcpath
 
-from torch_point_cloud.datasets.PointRCNN.KITTI import KittiDataset
-from torch_point_cloud.modules.functional import roipool3d_utils
+from torchpcp.datasets.PointRCNN.KITTI import KittiDataset
+from torchpcp.modules.functional import roipool3d_utils
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--save_dir', type=str, default='/mnt/databox/datasets/KITTI/tpc_PointRCNN/gt_database')

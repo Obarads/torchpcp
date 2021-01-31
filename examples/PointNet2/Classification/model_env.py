@@ -6,13 +6,13 @@ from torch import nn
 from torch.optim import lr_scheduler
 
 # dataset
-from torch_point_cloud.datasets.PointNet import ModelNet
+from torchpcp.datasets.PointNet import ModelNet
 
 # model
-from torch_point_cloud.models.PointNet2 import PointNet2SSGClassification
+from torchpcp.models.PointNet2 import PointNet2SSGClassification
 
 # loss
-from torch_point_cloud.losses.LabelSmoothingLoss import LabelSmoothingLoss
+from torchpcp.losses.LabelSmoothingLoss import LabelSmoothingLoss
 
 def get_dataset(cfg):
     if cfg.dataset.name == "modelnet40":

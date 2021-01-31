@@ -35,7 +35,7 @@ class General:
 
 @dataclass
 class RPN:
-    # from torch_point_cloud.models.PointNet import PointNetClassification for ModelNet40
+    # from torchpcp.models.PointNet import PointNetClassification for ModelNet40
     resume: str = MISSING
 
 ##

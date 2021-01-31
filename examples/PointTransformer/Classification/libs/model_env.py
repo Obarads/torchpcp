@@ -7,13 +7,13 @@ from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 
 # dataset
-from torch_point_cloud.datasets.PointNet2.ModelNet import ModelNet40
-from torch_point_cloud.datasets.PointNet2.ModelNet import MyModelNet40
+from torchpcp.datasets.PointNet2.ModelNet import ModelNet40
+from torchpcp.datasets.PointNet2.ModelNet import MyModelNet40
 
 # model
-from torch_point_cloud.models.PointTransformer import PointTransformerClassification
-from torch_point_cloud.utils.io.ply import write_pc
-from torch_point_cloud.utils import pytorch_tools
+from torchpcp.models.PointTransformer import PointTransformerClassification
+from torchpcp.utils.io.ply import write_pc
+from torchpcp.utils import pytorch_tools
 
 def get_dataset(cfg):
     """

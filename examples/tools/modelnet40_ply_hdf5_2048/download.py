@@ -1,9 +1,9 @@
 import os, sys
-sys.path.append("../../../") # for torch_point_cloud in this repository
+sys.path.append("../../../") # for torchpcp in this repository
 
 import argparse
 
-from torch_point_cloud.datasets.utils.modelnet40_ply_hdf5_2048 import download
+from torchpcp.datasets.utils.modelnet40_ply_hdf5_2048 import download
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
