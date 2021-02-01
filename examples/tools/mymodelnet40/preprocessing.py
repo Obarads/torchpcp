@@ -1,18 +1,15 @@
-# add path of torchpcp
-# If you installed torchpcp using setup.py, don't need to import this module.
-import os, sys
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "../../../"))) # for package path
-
-
-import torch
-from torchpcp.datasets.PointNet2.ModelNet import ModelNet40
 import h5py
-from tqdm import tqdm
+# from tqdm import tqdm
 import argparse
 
+import torch
+
+from libs import tpcpath
+from torchpcp.datasets.PointNet2.ModelNet import ModelNet40
+
 def create_modelnet_dataset(file_name, dataset):
-    loader = tqdm(range(len(dataset)), desc=file_name)
+    loader = range(len(dataset))
+    # loader = tqdm(loader, desc=file_name)
     with h5py.File(file_name, "w") as f:
         point_clouds = []
         labels = []
