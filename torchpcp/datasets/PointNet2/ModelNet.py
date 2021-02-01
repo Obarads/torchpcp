@@ -58,7 +58,7 @@ class ModelNet40Dataset(Dataset): # modelnet40_normal_resampled
 
         if with_fastlist:
             fastlist = []
-            loader = tqdm(range(len(self.datapath)), desc="fl")
+            loader = tqdm(range(len(self.datapath)), desc="Load modelnet40 {} dataset.".format(split))
             for idx in loader:
                 fn = self.datapath[idx]
                 cls = self.classes[self.datapath[idx][0]]

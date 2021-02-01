@@ -1,4 +1,4 @@
-# PyTorch Point Cloud
+# Torchpcp
 
 [![python](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/)
 [![license](https://img.shields.io/badge/license-MIT%202.0-g.svg)](LICENSE)

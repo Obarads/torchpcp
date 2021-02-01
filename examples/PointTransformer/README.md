@@ -4,6 +4,9 @@
 ## How to use
 - I separate training and test codes into each task folder. Please find below, folder links of each task.
 
+## Attention
+- I can't confirm the performance of the paper in my implementation model yet.
+
 ## Note (Paper info.)
 ### Point Transformer layer
 - \gamma : an MLP with two linear layers and one ReLU nonlinearity.

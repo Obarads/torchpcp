@@ -63,7 +63,7 @@ class Loader:
     # loader cpu
     num_workers: int = 8
     # batch size
-    batch_size: int = 128
+    batch_size: int = 32
     # data shuffle
     # shuffle: bool = True
 

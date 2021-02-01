@@ -8,20 +8,6 @@ from torchpcp.modules.PointTransformerBlock import (
 
 from torchpcp.modules.Layer import PointwiseConv1D, Linear
 
-class TDPT(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size, coord_channel_size, td_k, num_sampling, pt_k):
-        super().__init__()
-
-        self.td = TransitionDown(in_channel_size, out_channel_size, td_k, num_sampling)
-        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//BOTTLENECK_RATIO, 
-                                        coord_channel_size, pt_k)
-
-    def forward(self, x, p1):
-        x, p2 = self.td(x, p1)
-        y = self.pt(x, p2)
-        y = x
-        return y, p2
-
 BOTTLENECK_RATIO = 2
 
 IN_CHANNEL_SIZE = 6
@@ -37,7 +23,21 @@ OUT_CHANNEL_SIZES = [64, 128, 256, 512]
 TD_KS = [16, 16, 16, 16] # KNN for transition down
 PT_KS = [16, 16, 16, 16] # KNN for point transformer
 
-OUT_OUT_CHANNEL_SIZES = [512, "d", 256, 40]
+OUT_OUT_CHANNEL_SIZES = [512, 256, 40]
+
+class TDPT(nn.Module):
+    def __init__(self, in_channel_size, out_channel_size, coord_channel_size, td_k, num_sampling, pt_k):
+        super().__init__()
+
+        self.td = TransitionDown(in_channel_size, out_channel_size, td_k, num_sampling)
+        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//BOTTLENECK_RATIO, 
+                                        coord_channel_size, pt_k)
+
+    def forward(self, x, p1):
+        x, p2 = self.td(x, p1)
+        y = self.pt(x, p2)
+        y = x
+        return y, p2
 
 class PointTransformerClassification(nn.Module):
     def __init__(
