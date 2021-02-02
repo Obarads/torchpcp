@@ -7,7 +7,9 @@ from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 
 # dataset
-from torchpcp.datasets.PointNet2.ModelNet import ModelNet40
+from torchpcp.datasets.PointNet.ModelNet import ModelNet40 as PNModelNet40
+from torchpcp.datasets.PointNet.ModelNet import rotation_and_jitter
+from torchpcp.datasets.PointNet2.ModelNet import ModelNet40 as PN2ModelNet40
 from torchpcp.datasets.PointNet2.ModelNet import MyModelNet40
 
 # model
@@ -17,24 +19,25 @@ from torchpcp.utils import pytorch_tools
 
 def get_dataset(cfg):
     """
-    Get dataset.
+    Get training and test dataset.
     """
     if cfg.dataset.name == "modelnet40":
-        dataset = MyModelNet40(
-            cfg.dataset.root
-        )
+        if cfg.dataset.mode == "pointnet2":
+            dataset = MyModelNet40(cfg.dataset.root)
+            train_collate_fn = dataset["train"].augment_batch_data
+        elif cfg.dataset.mode == "pointnet":
+            dataset = PNModelNet40(cfg.dataset.root, cfg.dataset.num_points)
+            train_collate_fn = rotation_and_jitter
+        else:
+            raise NotImplementedError('Unknown cfg.dataset.mode : ' + cfg.dataset.mode)
     else:
         raise NotImplementedError('Unknown cfg.dataset.name : ' + cfg.dataset.name)
-    return dataset
+    return dataset, train_collate_fn
 
-def get_loader(cfg, dataset, shuffle=False, with_collate_fn=False):
+def get_loader(cfg, dataset, shuffle=False, collate_fn=None):
     """
     Split dataset into the batch size with DataLoader.
     """
-    if with_collate_fn:
-        collate_fn = dataset.augment_batch_data
-    else:
-        collate_fn = None
 
     return DataLoader(
         dataset,
@@ -49,7 +52,9 @@ def get_model(cfg):
     """
     Get network model.
     """
-    model = PointTransformerClassification()
+    model = PointTransformerClassification(
+        in_channel_size=cfg.model.in_channel_size
+    )
     model.to(cfg.general.device)
     return model
 

@@ -18,10 +18,10 @@ from libs.model_env import (get_model, get_optimizer, get_scheduler, get_losses,
                             get_dataset, get_writer, get_loader)
 
 # config
-from libs import configs
+from libs.configs import default
 
 @hydra.main(config_name="modelnet40_config")
-def main(cfg: configs.ModelNet40Config) -> None:
+def main(cfg: default.ModelNet40Config) -> None:
     # ifx paths
     cfg = monitor.fix_path_in_configs(CW_DIR, cfg, [["dataset", "root"]])
 
@@ -32,6 +32,8 @@ def main(cfg: configs.ModelNet40Config) -> None:
         cfg.general.reproducibility
     )
 
+    cfg.general
+
     # set a device
     cfg.general.device = pytorch_tools.select_device(cfg.general.device)
 
@@ -39,10 +41,10 @@ def main(cfg: configs.ModelNet40Config) -> None:
     ## Get model.
     model = get_model(cfg)
     ## Get dataset.
-    dataset = get_dataset(cfg)
+    dataset, train_collate_fn = get_dataset(cfg)
     ## Get loader
     train_dataset_loader = get_loader(cfg, dataset["train"], shuffle=True, 
-                                      with_collate_fn=True)
+                                      collate_fn=train_collate_fn)
     test_dataset_loader = get_loader(cfg, dataset["test"])
     ## Get loss functions.
     criterion = get_losses(cfg)

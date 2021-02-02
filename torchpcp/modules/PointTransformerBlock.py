@@ -5,7 +5,7 @@ from torch.nn import functional as F
 from torchpcp.modules.functional.nns import k_nearest_neighbors
 from torchpcp.modules.functional.other import index2points, localize
 from torchpcp.modules.functional.sampling import furthest_point_sampling
-# from torchpcp.modules.Layer import PointwiseConv2D
+from torchpcp.modules.Layer import PointwiseConv2D, PointwiseConv1D
 
 # from einops import repeat
 
@@ -115,11 +115,8 @@ class PointTransformerBlock(nn.Module):
 class TransitionDown(nn.Module):
     def __init__(self, in_channel_size, out_channel_size, k, num_samples):
         super().__init__()
-        self.mlp = nn.Sequential(
-            nn.Conv2d(in_channel_size, out_channel_size, (1,1), bias=False),
-            nn.BatchNorm2d(out_channel_size),
-            nn.ReLU(inplace=True)
-        )
+        self.mlp = PointwiseConv2D(in_channel_size, out_channel_size, 
+                                   conv_args={"bias": False})
 
         self.k = k
         self.num_samples = num_samples
@@ -140,6 +137,28 @@ class TransitionDown(nn.Module):
         y, _ = torch.max(knn_mlp_x, dim=-1)
 
         return y, fps_coords
+
+class NonTrasition(nn.Module):
+    def __init__(self, in_channel_size, out_channel_size, k):
+        super().__init__()
+        self.mlp = PointwiseConv2D(in_channel_size, out_channel_size, 
+                                   conv_args={"bias": False})
+        self.k = k
+
+    def forward(self, x, coords):
+        # Get knn indices
+        knn_indices, _ = k_nearest_neighbors(coords, coords, self.k)
+        knn_x = index2points(x, knn_indices)
+
+        # MLP
+        knn_mlp_x = self.mlp(knn_x)
+
+        # Use local max pooling.
+        y, _ = torch.max(knn_mlp_x, dim=-1)
+
+        return y, coords
+
+
 
 # class TransitionUp(nn.Module):
 #     def __init__(self, in_channel_size, out_channel_size):

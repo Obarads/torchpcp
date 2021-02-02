@@ -3,12 +3,13 @@ from torch import nn
 
 from torchpcp.modules.PointTransformerBlock import (
     PointTransformerBlock,
-    TransitionDown
+    TransitionDown,
+    NonTrasition
 )
 
 from torchpcp.modules.Layer import PointwiseConv1D, Linear
 
-BOTTLENECK_RATIO = 2
+BOTTLENECK_RATIO = 4
 
 IN_CHANNEL_SIZE = 6
 IN_OUT_CHANNEL_SIZE = 32
@@ -36,7 +37,19 @@ class TDPT(nn.Module):
     def forward(self, x, p1):
         x, p2 = self.td(x, p1)
         y = self.pt(x, p2)
-        y = x
+        return y, p2
+
+class NTPT(nn.Module):
+    def __init__(self, in_channel_size, out_channel_size, coord_channel_size, nt_k, pt_k):
+        super().__init__()
+
+        self.nt = NonTrasition(in_channel_size, out_channel_size, nt_k)
+        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//BOTTLENECK_RATIO,
+                                        coord_channel_size, pt_k)
+    
+    def forward(self, x, p1):
+        x, p2 = self.nt(x, p1) # p2 = p1
+        y = self.pt(x, p2)
         return y, p2
 
 class PointTransformerClassification(nn.Module):
@@ -54,12 +67,14 @@ class PointTransformerClassification(nn.Module):
     ):
         super().__init__()
 
-        self.input_mlp = nn.Sequential(
-            PointwiseConv1D(in_channel_size, in_out_channel_size, conv_args={"bias": False}),
-            # PointwiseConv1D(in_out_channel_size, in_out_channel_size)
-        )
-        self.module_1 = PointTransformerBlock(in_out_channel_size, in_out_channel_size//BOTTLENECK_RATIO,
-                                              coord_channel_size, in_pt_k)
+        # self.input_mlp = nn.Sequential(
+        #     PointwiseConv1D(in_channel_size, in_out_channel_size, conv_args={"bias": False}),
+        #     # PointwiseConv1D(in_out_channel_size, in_out_channel_size)
+        # )
+        # self.module_1 = PointTransformerBlock(in_out_channel_size, in_out_channel_size//BOTTLENECK_RATIO,
+        #                                       coord_channel_size, in_pt_k)
+        self.input_mlp = NTPT(in_channel_size, in_out_channel_size, coord_channel_size, 
+                              in_pt_k, in_pt_k)
 
         in_channel_size = in_out_channel_size
         self.encoder = nn.ModuleList()
@@ -90,8 +105,9 @@ class PointTransformerClassification(nn.Module):
         self.decoder = nn.Sequential(*decoder)
 
     def forward(self, x, coords):
-        x = self.input_mlp(x)
-        x = self.module_1(x, coords)
+        # x, coords = self.input_mlp(x, coords)
+        # x = self.module_1(x, coords)
+        x, _ = self.input_mlp(x, coords)
 
         for enc in self.encoder:
             x, coords = enc(x, coords)
