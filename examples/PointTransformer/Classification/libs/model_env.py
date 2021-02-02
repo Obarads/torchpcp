@@ -53,7 +53,14 @@ def get_model(cfg):
     Get network model.
     """
     model = PointTransformerClassification(
-        in_channel_size=cfg.model.in_channel_size
+        in_channel_size=cfg.model.in_channel_size,
+        in_num_point=cfg.model.in_num_point,
+        coord_channel_size=cfg.model.coord_channel_size,
+        num_points=cfg.model.num_points,
+        encoder_channel_sizes=cfg.model.encoder_channel_sizes,
+        bottleneck_ratio=cfg.model.bottleneck_ratio,
+        num_k_neighbors=cfg.model.num_k_neighbors,
+        decoder_channel_sizes=cfg.model.decoder_channel_sizes
     )
     model.to(cfg.general.device)
     return model
@@ -70,8 +77,8 @@ def get_optimizer(cfg, model):
     optimizer = optim.SGD(
         model.parameters(),
         lr=cfg.optimizer.lr,
-        momentum=0.9,
-        weight_decay=0.0001
+        momentum=cfg.optimizer.momentum,
+        weight_decay=cfg.optimizer.weight_decay
     )
     return optimizer
 
@@ -81,8 +88,7 @@ def get_scheduler(cfg, optimizer):
     """
     scheduler = lr_scheduler.MultiStepLR(
         optimizer, 
-        # milestones=cfg.scheduler.epoch_list,
-        milestones=[120,160],
+        milestones=cfg.scheduler.epoch_list,
         gamma=cfg.scheduler.decay_rate
     )
     return scheduler

@@ -2,36 +2,16 @@ import torch
 from torch import nn
 
 from torchpcp.modules.PointTransformerBlock import (
-    PointTransformerBlock,
-    TransitionDown,
-    NonTrasition
-)
-
+    PointTransformerBlock, TransitionDown, NonTrasition)
 from torchpcp.modules.Layer import PointwiseConv1D, Linear
 
-BOTTLENECK_RATIO = 4
-
-IN_CHANNEL_SIZE = 6
-IN_OUT_CHANNEL_SIZE = 32
-IN_PT_K = 16
-
-COORD_CHANNEL_SIZE=3
-DATASET_NUM_POINTS = 1024
-
-NUM_POINTS = [DATASET_NUM_POINTS//4, DATASET_NUM_POINTS//16, DATASET_NUM_POINTS//64, 
-              DATASET_NUM_POINTS//256]
-OUT_CHANNEL_SIZES = [64, 128, 256, 512]
-TD_KS = [16, 16, 16, 16] # KNN for transition down
-PT_KS = [16, 16, 16, 16] # KNN for point transformer
-
-OUT_OUT_CHANNEL_SIZES = [512, 256, 40]
-
 class TDPT(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size, coord_channel_size, td_k, num_sampling, pt_k):
+    def __init__(self, in_channel_size, out_channel_size, pt_mid_channel_size,
+                 coord_channel_size, td_k, num_sampling, pt_k):
         super().__init__()
 
         self.td = TransitionDown(in_channel_size, out_channel_size, td_k, num_sampling)
-        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//BOTTLENECK_RATIO, 
+        self.pt = PointTransformerBlock(out_channel_size, pt_mid_channel_size, 
                                         coord_channel_size, pt_k)
 
     def forward(self, x, p1):
@@ -40,11 +20,12 @@ class TDPT(nn.Module):
         return y, p2
 
 class NTPT(nn.Module):
-    def __init__(self, in_channel_size, out_channel_size, coord_channel_size, nt_k, pt_k):
+    def __init__(self, in_channel_size, out_channel_size, pt_mid_channel_size,
+                 coord_channel_size, nt_k, pt_k):
         super().__init__()
 
         self.nt = NonTrasition(in_channel_size, out_channel_size, nt_k)
-        self.pt = PointTransformerBlock(out_channel_size, out_channel_size//BOTTLENECK_RATIO,
+        self.pt = PointTransformerBlock(out_channel_size, pt_mid_channel_size,
                                         coord_channel_size, pt_k)
     
     def forward(self, x, p1):
@@ -52,67 +33,75 @@ class NTPT(nn.Module):
         y = self.pt(x, p2)
         return y, p2
 
+class MLPPT(nn.Module):
+    def __init__(self, in_channel_size, out_channel_size, pt_mid_channel_size,
+                 coord_channel_size, pt_k):
+        super().__init__()
+
+        self.pwc = PointwiseConv1D(in_channel_size, out_channel_size, conv_args={"bias": False})
+        self.pt = PointTransformerBlock(out_channel_size, pt_mid_channel_size,
+                                        coord_channel_size, pt_k)
+    
+    def forward(self, x, p1):
+        x = self.pwc(x)
+        y = self.pt(x, p1)
+        return y, p1
+
 class PointTransformerClassification(nn.Module):
     def __init__(
         self, 
-        in_channel_size=IN_CHANNEL_SIZE, 
-        in_out_channel_size=IN_OUT_CHANNEL_SIZE,
-        in_pt_k = IN_PT_K,
-        num_points=NUM_POINTS,
-        out_channel_sizes=OUT_CHANNEL_SIZES,
-        td_ks=TD_KS,
-        pt_ks=PT_KS,
-        out_out_channel_sizes=OUT_OUT_CHANNEL_SIZES,
-        coord_channel_size=COORD_CHANNEL_SIZE
+        in_channel_size,
+        in_num_point,
+        coord_channel_size,
+        num_points,
+        encoder_channel_sizes,
+        bottleneck_ratio,
+        num_k_neighbors,
+        decoder_channel_sizes
+
     ):
         super().__init__()
 
-        # self.input_mlp = nn.Sequential(
-        #     PointwiseConv1D(in_channel_size, in_out_channel_size, conv_args={"bias": False}),
-        #     # PointwiseConv1D(in_out_channel_size, in_out_channel_size)
-        # )
-        # self.module_1 = PointTransformerBlock(in_out_channel_size, in_out_channel_size//BOTTLENECK_RATIO,
-        #                                       coord_channel_size, in_pt_k)
-        self.input_mlp = NTPT(in_channel_size, in_out_channel_size, coord_channel_size, 
-                              in_pt_k, in_pt_k)
-
-        in_channel_size = in_out_channel_size
-        self.encoder = nn.ModuleList()
-        for i in range(len(num_points)):
+        # Create encoder layers.
+        encoder = []
+        prev_channel_size = in_channel_size
+        prev_num_point = in_num_point
+        for i in range(len(encoder_channel_sizes)):
+            out_channel_size = encoder_channel_sizes[i]
             num_point = num_points[i]
-            out_channel_size = out_channel_sizes[i]
-            td_k = td_ks[i]
-            pt_k = pt_ks[i]
-            self.encoder.append(TDPT(in_channel_size, out_channel_size, 
-                                     coord_channel_size, td_k, num_point, pt_k))
-            in_channel_size = out_channel_size
-
-        decoder = []
-        for i in range(len(out_out_channel_sizes)):
-            out_out_channel_size = out_out_channel_sizes[i]
-            if isinstance(out_out_channel_size, int):
-                if i == len(out_out_channel_sizes)-1:
-                    layers = nn.Linear(in_channel_size, out_out_channel_size)
-                else:
-                    layers = Linear(in_channel_size, out_out_channel_size)
-                in_channel_size = out_out_channel_size
-            elif out_out_channel_size == "d":
-                layers = nn.Dropout()
+            k = num_k_neighbors[i]
+            if prev_num_point == num_point:
+                encoder.append(MLPPT(prev_channel_size, out_channel_size, 
+                                     out_channel_size//bottleneck_ratio,
+                                     coord_channel_size, k))
+            elif prev_num_point > num_point:
+                encoder.append(TDPT(prev_channel_size, out_channel_size, 
+                                    out_channel_size//bottleneck_ratio,
+                                    coord_channel_size, k, num_point, k))
             else:
-                raise NotImplementedError()
-            decoder.append(layers)
+                raise ValueError("Number of points in the encoder (encoder_channel_sizes) must not be more than the previous layer.")
+            prev_channel_size = out_channel_size
+            prev_num_point = num_point
+        self.encoder = nn.ModuleList(encoder)
 
+        # Create decoder layers.
+        decoder = []
+        for i in range(len(decoder_channel_sizes)):
+            out_channel_size = decoder_channel_sizes[i]
+            if i == len(decoder_channel_sizes)-1:
+                decoder.append(nn.Linear(prev_channel_size, out_channel_size, bias=False))
+            elif i == "d":
+                decoder.append(nn.Dropout())
+            else:
+                decoder.append(Linear(prev_channel_size, out_channel_size, linear_args={"bias": False}))
+            prev_channel_size = out_channel_size
+        # self.decoder = nn.ModuleList(decoder)
         self.decoder = nn.Sequential(*decoder)
 
     def forward(self, x, coords):
-        # x, coords = self.input_mlp(x, coords)
-        # x = self.module_1(x, coords)
-        x, _ = self.input_mlp(x, coords)
-
         for enc in self.encoder:
             x, coords = enc(x, coords)
 
-        # print(x.shape)
         x = torch.mean(x, dim=-1)
 
         y = self.decoder(x)

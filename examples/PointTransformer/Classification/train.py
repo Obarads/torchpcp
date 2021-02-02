@@ -32,8 +32,6 @@ def main(cfg: default.ModelNet40Config) -> None:
         cfg.general.reproducibility
     )
 
-    cfg.general
-
     # set a device
     cfg.general.device = pytorch_tools.select_device(cfg.general.device)
 
@@ -43,7 +41,7 @@ def main(cfg: default.ModelNet40Config) -> None:
     ## Get dataset.
     dataset, train_collate_fn = get_dataset(cfg)
     ## Get loader
-    train_dataset_loader = get_loader(cfg, dataset["train"], shuffle=True, 
+    train_dataset_loader = get_loader(cfg, dataset["train"], shuffle=cfg.loader.shuffle, 
                                       collate_fn=train_collate_fn)
     test_dataset_loader = get_loader(cfg, dataset["test"])
     ## Get loss functions.

@@ -57,8 +57,8 @@ out_channels = ModelNet40.num_classes
 # model parameters
 NUM_POINTS = [npoint, npoint//4, npoint//16, npoint//64, npoint//256]
 ENCODER_CHANNELS = [32, 64, 128, 256, 512] # output channel size
-K = [16, 16, 16, 16, 16]
-DECODER_CHANNELS = [512, 256, out_channels] # decoder output channel size and dropout
+NUM_K_NEIGHBORS = [16, 16, 16, 16, 16]
+DECODER_CHANNELS = [512, "d", 256, out_channels] # decoder output channel size and dropout
 
 # https://hydra.cc/docs/next/tutorials/structured_config/defaults/
 @dataclass
@@ -67,13 +67,13 @@ class Model:
     resume: str = MISSING
     # model parameters
     in_channel_size: int = 6
+    in_num_point: int = npoint
     coord_channel_size: int = 3
     num_points: List[Any] = field(default_factory=lambda: NUM_POINTS)
     encoder_channel_sizes: List[Any] = field(default_factory=lambda: ENCODER_CHANNELS)
     bottleneck_ratio: int = 4
-    k: List[Any] = field(default_factory=lambda: K)
+    num_k_neighbors: List[Any] = field(default_factory=lambda: NUM_K_NEIGHBORS)
     decoder_channel_sizes: List[Any] = field(default_factory=lambda: DECODER_CHANNELS)
-
 
 ##
 ## Dataset Loader
@@ -96,16 +96,23 @@ class Loader:
 class Optimizer:
     # learning rate
     lr: float = 0.05
+    # momentum
+    momentum: float = 0.9
+    # weight_decay
+    weight_decay: float = 0.0001
 
 ##
 ## Scheduler
 ##
 
+# shceduler param
+EPOCH_LIST = [120, 160]
+
 @dataclass
 class Scheduler:
     # use torch.optim.lr_scheduler.StepLR
     # scheduler step_size
-    # epoch_list: List[int] = field(default_factory=list) [120, 160]
+    epoch_list: List[Any] = field(default_factory=lambda: EPOCH_LIST)
     # scheduler gamma
     decay_rate: float = 0.1
 
