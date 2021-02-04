@@ -63,7 +63,7 @@ class ModelNet40:
 @dataclass
 class Loader:
     # loader cpu
-    num_workers: int = 8
+    num_workers: int = 4
     # batch size
     batch_size: int = 32
     # data shuffle

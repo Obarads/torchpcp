@@ -90,7 +90,7 @@ class PointTransformerClassification(nn.Module):
             out_channel_size = decoder_channel_sizes[i]
             if i == len(decoder_channel_sizes)-1:
                 decoder.append(nn.Linear(prev_channel_size, out_channel_size, bias=False))
-            elif i == "d":
+            elif out_channel_size == "d":
                 decoder.append(nn.Dropout())
             else:
                 decoder.append(Linear(prev_channel_size, out_channel_size, linear_args={"bias": False}))

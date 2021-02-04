@@ -58,7 +58,7 @@ out_channels = ModelNet40.num_classes
 NUM_POINTS = [npoint, npoint//4, npoint//16, npoint//64, npoint//256]
 ENCODER_CHANNELS = [32, 64, 128, 256, 512] # output channel size
 NUM_K_NEIGHBORS = [16, 16, 16, 16, 16]
-DECODER_CHANNELS = [512, "d", 256, out_channels] # decoder output channel size and dropout
+DECODER_CHANNELS = [512, 256, out_channels] # decoder output channel size and dropout
 
 # https://hydra.cc/docs/next/tutorials/structured_config/defaults/
 @dataclass

@@ -14,6 +14,9 @@
 - k : 16
 - mlp : Linear transformation, bath normalization and ReLU.
 
+### URL (related work)
+- https://github.com/hszhao/SAN/issues/7
+
 ## Links
 ### Classification
 - [code](./Classification/README.md)

@@ -19,10 +19,10 @@ class PointTransformerLayer(nn.Module):
 
         #  gamma (mapping function)
         self.mlp_gamma = nn.Sequential(
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False),
-            # nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False),
+            nn.Conv2d(out_channel_size, out_channel_size * 3, (1,1), bias=False),
             nn.ReLU(inplace=True),
+            nn.Conv2d(out_channel_size * 3, out_channel_size, (1,1), bias=False),
+            # nn.ReLU(inplace=True),
         )
 
         # rho (normalization function)
@@ -73,10 +73,10 @@ class PositionEncoding(nn.Module):
         super().__init__()
         # theta (encoding function)
         self.mlp_theta = nn.Sequential(
-            nn.Conv2d(in_channel_size, out_channel_size, (1,1), bias=False),
-            # nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False),
+            nn.Conv2d(in_channel_size, out_channel_size//2, (1,1), bias=False),
             nn.ReLU(inplace=True),
+            nn.Conv2d(out_channel_size//2, out_channel_size, (1,1), bias=False),
+            # nn.ReLU(inplace=True),
         )
         # self.k = k
 
