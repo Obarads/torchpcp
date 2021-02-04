@@ -121,7 +121,7 @@ def get_writer(cfg):
     elif cfg.writer.name == "wandb":
         import wandb
         writer = wandb
-        writer.init()
+        writer.init(project=cfg.writer.wandb_project_name)
     else:
         raise NotImplementedError("Unknown cfg.writer.name : ", cfg.writer.name)
     return writer

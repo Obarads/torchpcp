@@ -131,6 +131,7 @@ class Criterion:
 @dataclass
 class Writer:
     name: str = "tensorboardX"
+    wandb_project_name: str = "PT_cls"
 
 ##
 ## Training Config
