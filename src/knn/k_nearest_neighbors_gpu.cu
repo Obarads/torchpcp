@@ -51,13 +51,14 @@ __global__ void k_nearest_neighbors_kernel(
         }
     }
 }
-
+// #include <iostream>
 void k_nearest_neighbors(int b, int c, int n, int m, int k,
                          const float *points_coords,
                          const float *centers_coords,
                          int *neighbors_indices,
                          float *neighbors_dist)
 {
+    // std::cout<<"on"<< optimal_num_threads(n)<<std::endl;
     k_nearest_neighbors_kernel<<<
         b, optimal_num_threads(n), 0, at::cuda::getCurrentCUDAStream()>>>(
         b, c, n, m, k, points_coords, centers_coords, neighbors_indices,

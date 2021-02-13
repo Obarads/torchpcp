@@ -19,9 +19,9 @@ class PointTransformerLayer(nn.Module):
 
         #  gamma (mapping function)
         self.mlp_gamma = nn.Sequential(
-            nn.Conv2d(out_channel_size, out_channel_size * 3, (1,1), bias=False),
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size * 3, out_channel_size, (1,1), bias=False),
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False),
             # nn.ReLU(inplace=True),
         )
 
@@ -73,9 +73,9 @@ class PositionEncoding(nn.Module):
         super().__init__()
         # theta (encoding function)
         self.mlp_theta = nn.Sequential(
-            nn.Conv2d(in_channel_size, out_channel_size//2, (1,1), bias=False),
+            nn.Conv2d(in_channel_size, out_channel_size, (1,1), bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channel_size//2, out_channel_size, (1,1), bias=False),
+            nn.Conv2d(out_channel_size, out_channel_size, (1,1), bias=False),
             # nn.ReLU(inplace=True),
         )
         # self.k = k
@@ -101,10 +101,10 @@ class PointTransformerBlock(nn.Module):
         super().__init__()
 
         self.linear1 = nn.Conv1d(in_channel_size, mid_channel_size, 1, bias=False)
-        self.linear2 = nn.Conv1d(mid_channel_size, in_channel_size, 1, bias=False)
+        self.linear2 = nn.Conv1d(mid_channel_size//2, in_channel_size, 1, bias=False)
 
         self.point_transforme = PointTransformerLayer(
-            mid_channel_size, mid_channel_size, coords_channel_size, k)
+            mid_channel_size, mid_channel_size//2, coords_channel_size, k)
 
     def forward(self, x, coords):
         identity = x

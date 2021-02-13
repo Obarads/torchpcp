@@ -35,6 +35,16 @@ class SimpleObjectDataset(Dataset):
         return point_cloud, label
 
 class SimpleSceneDataset(Dataset):
+    """points, sem_label, ins_label = __getitem__
+
+    Parameters
+    ----------
+    num_points: int
+        Number of points.
+    file_path: str
+        path to dataset.
+    """
+
     def __init__(self, num_points=4096, file_path=S3DIS_DATAPATH):
         idx_to_datainfo = []
         with h5py.File(file_path, "r") as f:

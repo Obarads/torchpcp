@@ -22,11 +22,10 @@ std::vector<at::Tensor> k_nearest_neighbors_forward(at::Tensor points_coords,
     at::Tensor neighbors_indices = torch::zeros(
         {b, m, k},
         at::device(centers_coords.device()).dtype(at::ScalarType::Int));
-     at::Tensor neighbors_dist = torch::full(
+    at::Tensor neighbors_dist = torch::full(
         {b, m, k}, 1024,
         at::device(centers_coords.device()).dtype(at::ScalarType::Float));
        
-
     k_nearest_neighbors(b, c, n, m, k,
                         points_coords.data_ptr<float>(),
                         centers_coords.data_ptr<float>(),

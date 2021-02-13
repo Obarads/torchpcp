@@ -27,8 +27,8 @@ sources = [
         'voxelization/vox_gpu.cu',
         'knn/k_nearest_neighbors.cpp',
         'knn/k_nearest_neighbors_gpu.cu',
-        # "gather/gather.cpp",
-        # "gather/gather_gpu.cu",
+        "gather/gather.cpp",
+        "gather/gather_gpu.cu",
         'bindings.cpp',
     ]
 ]

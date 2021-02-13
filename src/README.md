@@ -12,6 +12,7 @@
 - link:[src/ball_query/](src/ball_query/)
 - Original implementation:
   - [mit-han-lab/pvcnn. (url:https://github.com/mit-han-lab/pvcnn) (access:2020/11/7)](https://github.com/mit-han-lab/pvcnn)
+- Note: because there is computing very small numbers below decimal point, ball_query() ≠ py_ball_query().
 
 ### Grouping
 - link:[src/grouping](src/grouping)
@@ -20,7 +21,6 @@
 
 ### Gather
 - link:[src/gather](src/gather/)
-- Note: incomplete
 
 ### Interpolate
 - link:[src/interpolate](src/interpolate/)
@@ -29,6 +29,7 @@
 
 ### KNN
 - link:[src/knn](src/knn/)
+- Note: If there are multiple values with the same distance in knn, the order of the indexes may change.
 
 ### Sampling
 - link:[src/interpolate](src/sampling)

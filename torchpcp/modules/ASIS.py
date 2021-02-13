@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from torchpcp.modules.Layer import Conv1DModule
+from torchpcp.modules.Layer import PointwiseConv1D
 # from torchpcp.modules.Sampling import knn_index, index2points
 from torchpcp.modules.functional.nns import k_nearest_neighbors
 from torchpcp.modules.functional.other import index2points
@@ -18,7 +18,7 @@ class ASIS(nn.Module):
         ) # input: F_ISEM, output: P_SEM
 
         # interactive module: sem to ins
-        self.adaptation = Conv1DModule(sem_in_channels, ins_in_channels)
+        self.adaptation = PointwiseConv1D(sem_in_channels, ins_in_channels)
 
         # ins branch
         self.ins_emb_fc = nn.Sequential(

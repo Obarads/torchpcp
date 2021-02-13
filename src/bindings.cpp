@@ -9,7 +9,7 @@
 #include "sampling/sampling.hpp"
 #include "voxelization/vox.hpp"
 #include "knn/k_nearest_neighbors.hpp"
-// #include "gather/gather.hpp"
+#include "gather/gather.hpp"
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m)
 {
@@ -41,5 +41,5 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m)
             "Voxelization backward (CUDA)");
       m.def("k_nearest_neighbors", &k_nearest_neighbors_forward,
             "K nearest neighbors forward (CUDA)");
-      // m.def("gather", &gather_forward, "Gather (CUDA)");
+      m.def("gather", &gather_forward, "Gather (CUDA)");
 }
