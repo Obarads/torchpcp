@@ -3,10 +3,8 @@ from torch import nn
 from torch.nn import functional as F
 
 from torchpcp.modules.Layer import PointwiseConv1D
-from torchpcp.modules.functional import (
-    k_nearest_neighbors,
-    index2points
-)
+from torchpcp.modules.functional.nns import k_nearest_neighbors, py_k_nearest_neighbors
+from torchpcp.modules.functional.other import index2points
 
 class PointNetFeaturePropagation(nn.Module):
     def __init__(self, init_in_channel, mlp):
@@ -38,7 +36,7 @@ class PointNetFeaturePropagation(nn.Module):
         if S == 1:
             interpolated_points = points2.repeat(1, 1, N)
         else:
-            idxs, dists = k_nearest_neighbors(xyz1, xyz2, 3, memory_saving=True)
+            idxs, dists = py_k_nearest_neighbors(xyz1, xyz2, 3, memory_saving=True)
 
             dist_recip = 1.0 / (dists + 1e-8)
             norm = torch.sum(dist_recip, dim=2, keepdim=True)

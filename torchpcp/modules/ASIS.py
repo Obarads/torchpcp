@@ -3,7 +3,7 @@ from torch import nn
 
 from torchpcp.modules.Layer import PointwiseConv1D
 # from torchpcp.modules.Sampling import knn_index, index2points
-from torchpcp.modules.functional.nns import k_nearest_neighbors
+from torchpcp.modules.functional.nns import k_nearest_neighbors, py_k_nearest_neighbors
 from torchpcp.modules.functional.other import index2points
 
 class ASIS(nn.Module):
@@ -40,7 +40,7 @@ class ASIS(nn.Module):
         e_ins = self.ins_emb_fc(f_sins)
 
         # for P_SEM
-        nn_idx, _ = k_nearest_neighbors(e_ins, e_ins, self.k)
+        nn_idx, _ = py_k_nearest_neighbors(e_ins, e_ins, self.k, memory_saving=True)
         k_f_sem = index2points(f_sem, nn_idx)
         f_isem = torch.max(k_f_sem, dim=3, keepdim=True)[0]
         f_isem = torch.squeeze(f_isem, dim=3)

@@ -14,9 +14,9 @@ import torch
 from torch.utils.data import DataLoader
 
 # tools
-from torchpcp.utils.setting import (PytorchTools, fix_path_in_configs)
+from torchpcp.utils import pytorch_tools
+from torchpcp.utils.monitor import dict2tensorboard, fix_path_in_configs
 from torchpcp.utils.metrics import MultiAssessmentMeter, LossMeter
-from torchpcp.utils.converter import dict2tensorboard
 
 # env
 from model_env import processing, save_params
@@ -28,14 +28,14 @@ def main(cfg:omegaconf.DictConfig):
     cfg = fix_path_in_configs(CW_DIR, cfg, [["dataset","root"]])
 
     # set a seed 
-    PytorchTools.set_seed(
+    pytorch_tools.set_seed(
         cfg.general.seed, 
         cfg.general.device, 
         cfg.general.reproducibility
     )
 
     # set a device
-    cfg.general.device = PytorchTools.select_device(cfg.general.device)
+    cfg.general.device = pytorch_tools.select_device(cfg.general.device)
 
     model = get_model(cfg)
     dataset = get_dataset(cfg)
@@ -97,6 +97,7 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     )
     batch_loss = LossMeter()
     meters = (acc_meter, batch_loss)
+    print(len(loader))
 
     for data in loader:
         optimizer.zero_grad()
