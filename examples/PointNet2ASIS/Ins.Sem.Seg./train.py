@@ -15,12 +15,13 @@ from torch.utils.data import DataLoader
 
 # tools
 from torchpcp.utils import pytorch_tools
-from torchpcp.utils.monitor import dict2tensorboard, fix_path_in_configs
+from torchpcp.utils.monitor import dict2logger, fix_path_in_configs
 from torchpcp.utils.metrics import MultiAssessmentMeter, LossMeter
 
 # env
 from model_env import processing, save_params
-from model_env import get_model, get_dataset, get_losses, get_optimizer, get_scheduler
+from model_env import (get_writer, get_model, get_dataset, get_losses, 
+                       get_optimizer, get_scheduler)
 
 @hydra.main(config_path=CONFIG_PATH)
 def main(cfg:omegaconf.DictConfig):
@@ -44,7 +45,7 @@ def main(cfg:omegaconf.DictConfig):
     scheduler = get_scheduler(cfg, optimizer)
 
     # get a logger
-    writer = SummaryWriter("./")
+    writer = get_writer(cfg)
 
     # start training
     loader = tqdm(range(cfg.general.start_epoch, cfg.general.epochs), 
@@ -62,7 +63,7 @@ def main(cfg:omegaconf.DictConfig):
             scheduler
         )
 
-        dict2tensorboard(train_log, writer, epoch)
+        dict2logger(train_log, writer, epoch, cfg.writer.name)
 
         # save params and model
         if (epoch+1) % cfg.general.save_epoch == 0 and \

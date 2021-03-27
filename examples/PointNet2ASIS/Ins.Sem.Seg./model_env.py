@@ -72,6 +72,21 @@ def get_losses(cfg):
     )
     return criterion
 
+def get_writer(cfg):
+    """
+    Get logger.
+    """
+    if cfg.writer.name == "tensorboardX":
+        from tensorboardX import SummaryWriter
+        writer = SummaryWriter("./")
+    elif cfg.writer.name == "wandb":
+        import wandb
+        writer = wandb
+        writer.init(project=cfg.writer.project)
+    else:
+        raise NotImplementedError("Unknown cfg.writer.name : ", cfg.writer.name)
+    return writer
+
 def processing(model, criterion, data, meters, device, return_outputs=False):
     acc_meter, batch_loss = meters
     point_clouds, sem_labels, ins_labels, ins_label_sizes, ins_masks = data
