@@ -18,6 +18,7 @@ The Componets of this repository is as following.
 ## Dependencies
 - Python3 (3.7.7)
 - PyTorch (1.7.0)
+- easydict
 - Ninja (1.8.2)
   - If you have not installed this software, Please show [here](https://www.claudiokuenzler.com/blog/756/install-newer-ninja-build-tools-ubuntu-14.04-trusty).
 - (optional) [Hydra](https://github.com/facebookresearch/hydra) (1.0 or later)

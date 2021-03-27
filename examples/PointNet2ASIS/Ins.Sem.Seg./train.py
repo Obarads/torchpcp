@@ -22,7 +22,7 @@ from torchpcp.utils.metrics import MultiAssessmentMeter, LossMeter
 from model_env import processing, save_params
 from model_env import get_model, get_dataset, get_losses, get_optimizer, get_scheduler
 
-@hydra.main(config_name=CONFIG_PATH)
+@hydra.main(config_path=CONFIG_PATH)
 def main(cfg:omegaconf.DictConfig):
     # fix paths
     cfg = fix_path_in_configs(CW_DIR, cfg, [["dataset","root"]])
@@ -97,7 +97,6 @@ def train(cfg, model, dataset, optimizer, criterion, scheduler, publisher="train
     )
     batch_loss = LossMeter()
     meters = (acc_meter, batch_loss)
-    print(len(loader))
 
     for data in loader:
         optimizer.zero_grad()
