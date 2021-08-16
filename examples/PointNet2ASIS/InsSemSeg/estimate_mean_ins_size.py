@@ -14,7 +14,7 @@ from torchpcp.datasets.ASIS.utils import provider
 from torchpcp.datasets.ASIS.S3DIS import get_block_paths
 
 # tools
-from torchpcp.utils.setting import PytorchTools
+from torchpcp.utils import pytorch_tools as PytorchTools
 
 @hydra.main(config_name=CONFIG_PATH)
 def estimate(cfg:omegaconf.DictConfig):
